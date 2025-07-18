@@ -15,4 +15,3 @@ A system for karate competition matching and managing, especially for **IBKO**, 
 ### 🎨 Model & View:
 - **Feifan Shen** — Department of Mechanical Engineering 🛠️  
 - **Qinxie Zhang** — Department of Software Engineering 🖥️  
-- **Xinyan Jin** — Department of Software Engineering 🖱️
