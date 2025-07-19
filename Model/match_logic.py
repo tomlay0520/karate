@@ -11,7 +11,7 @@ class KarateMatchSystem:
         }
 
     def update_group_names(self, group_a, group_b, group_c):
-        """更新甲乙丙组的自定义名称"
+        """更新甲乙丙组的自定义名称"""
         self.group_names = {
             '甲组': group_a,
             '乙组': group_b,
@@ -19,7 +19,9 @@ class KarateMatchSystem:
         }
 
     def _generate_weight_category(self, age, gender, weight_input, weight_flag, group_type):
-        """生成分量制比赛的分组名称"
+        """
+        生成分量制比赛的分组名称
+        """
         if age <= 5:
             category = f"U{age}男女混合"
             if not weight_flag:
@@ -35,7 +37,7 @@ class KarateMatchSystem:
         return category
 
     def _generate_kata_category(self, age, gender, group_type):
-        """生成型赛的分组名称"
+        """生成型赛的分组名称"""
         gender_text = "男" if gender == "男" else "女"
         group_text = self.group_names[group_type]
         return f"U{age}{group_text}{gender_text}子个人型"
@@ -44,7 +46,7 @@ class KarateMatchSystem:
         """根据比赛类别查询选手
         category_type: 'kumite' 或 'kata'
         kwargs: 包含相应的参数
-        ""
+        """
         conn = sqlite3.connect(self.db_path)
         cursor = conn.cursor()
 
@@ -86,7 +88,7 @@ class KarateMatchSystem:
             conn.close()
 
     def create_match_database(self, db_path):
-        """创建比赛过程信息数据库"
+        """创建比赛过程信息数据库"""
         conn = sqlite3.connect(db_path)
         cursor = conn.cursor()
 
@@ -102,13 +104,13 @@ class KarateMatchSystem:
                 FOREIGN KEY (athlete1_id) REFERENCES ath(id),
                 FOREIGN KEY (athlete2_id) REFERENCES ath(id)
             )
-        """)
+         """)
 
         conn.commit()
         conn.close()
 
     def generate_match_tree(self, athletes, category):
-        """生成比赛树状图结构"
+        """生成比赛树状图结构"""
         if not athletes:
             return []
 
