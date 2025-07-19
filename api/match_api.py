@@ -5,7 +5,7 @@ from pydantic import BaseModel
 # 引入可选类型支持
 from typing import Optional
 # 从项目内部导入比赛逻辑模块（假设放在上级目录的 Model 文件夹中）
-from ..Model.match_logic import KarateMatchSystem
+from Model.match_logic import KarateMatchSystem
 
 # 创建 FastAPI 应用实例
 app = FastAPI()
