@@ -1,120 +1,165 @@
 import sqlite3
 import re
+import random
+from typing import List, Dict, Optional
+import logging
+
+# 配置日志
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logger = logging.getLogger(__name__)
+
 
 class KarateMatchSystem:
-    def __init__(self, db_path):
+    def __init__(self, db_path: str):
         self.db_path = db_path
-        self.group_names = {
-            '甲组': '甲组',
-            '乙组': '乙组',
-            '丙组': '丙组'
-        }
+        self.group_names = {'甲组': '甲组', '乙组': '乙组', '丙组': '丙组'}
 
-    def update_group_names(self, group_a, group_b, group_c):
+    def update_group_names(self, group_a: str, group_b: str, group_c: str) -> None:
         """更新甲乙丙组的自定义名称"""
-        self.group_names = {
-            '甲组': group_a,
-            '乙组': group_b,
-            '丙组': group_c
-        }
+        if not all([group_a, group_b, group_c]):
+            logger.error("组别名称不能为空")
+            raise ValueError("组别名称不能为空")
+        self.group_names = {'甲组': group_a, '乙组': group_b, '丙组': group_c}
+        logger.info(f"组别名称更新为: 甲组={group_a}, 乙组={group_b}, 丙组={group_c}")
 
-    def _generate_weight_category(self, age, gender, weight_input, weight_flag, group_type):
-        """
-        生成分量制比赛的分组名称
-        """
+    def _generate_weight_category(self, age: int, gender: Optional[str], weight_input: Optional[str],
+                                  weight_flag: Optional[bool], group_type: Optional[str]) -> str:
+        """生成分量制比赛分组名称"""
+        if not isinstance(age, int) or age < 0:
+            logger.error("年龄必须为非负整数")
+            raise ValueError("年龄必须为非负整数")
+
+        gender_map = {'male': '男', 'female': '女', '男': '男', '女': '女'}
+        if gender and gender not in gender_map:
+            logger.error(f"无效性别: {gender}")
+            raise ValueError("性别必须为 'male', 'female', '男' 或 '女'")
+
         if age <= 5:
             category = f"U{age}男女混合"
-            if not weight_flag:
+            if not weight_flag and weight_input:
                 category += f"{weight_input}组"
             else:
                 category += "组"
         else:
-            gender_text = "男" if gender == "男" else "女"
+            if not group_type or group_type not in self.group_names:
+                logger.error(f"无效组别类型: {group_type}")
+                raise ValueError("无效的组别类型")
+            if not gender:
+                logger.error("年龄大于5时必须提供性别")
+                raise ValueError("年龄大于5时必须提供性别")
+            gender_text = gender_map[gender]
             group_text = self.group_names[group_type]
             category = f"U{age}{gender_text}子{group_text}"
-            if not weight_flag:
+            if not weight_flag and weight_input:
                 category += f"{weight_input}KG"
+        logger.info(f"生成分量制分组: {category}")
         return category
 
-    def _generate_kata_category(self, age, gender, group_type):
-        """生成型赛的分组名称"""
-        gender_text = "男" if gender == "男" else "女"
-        group_text = self.group_names[group_type]
-        return f"U{age}{group_text}{gender_text}子个人型"
+    def _generate_kata_category(self, age: int, gender: str, group_type: str) -> str:
+        """生成型赛分组名称"""
+        if not isinstance(age, int) or age < 0:
+            logger.error("年龄必须为非负整数")
+            raise ValueError("年龄必须为非负整数")
+        gender_map = {'male': '男', 'female': '女', '男': '男', '女': '女'}
+        if gender not in gender_map:
+            logger.error(f"无效性别: {gender}")
+            raise ValueError("性别必须为 'male', 'female', '男' 或 '女'")
+        if group_type not in self.group_names:
+            logger.error(f"无效组别类型: {group_type}")
+            raise ValueError("无效的组别类型")
 
-    def get_athletes_by_category(self, category_type, **kwargs):
-        """根据比赛类别查询选手
-        category_type: 'kumite' 或 'kata'
-        kwargs: 包含相应的参数
-        """
+        gender_text = gender_map[gender]
+        group_text = self.group_names[group_type]
+        category = f"U{age}{group_text}{gender_text}子个人型"
+        logger.info(f"生成型赛分组: {category}")
+        return category
+
+    def get_athletes_by_category(self, category_type: str, **kwargs) -> List[Dict]:
+        """根据比赛类别查询选手"""
+        if category_type not in ['kumite', 'kata']:
+            logger.error(f"无效比赛类别: {category_type}")
+            raise ValueError("category_type 必须为 'kumite' 或 'kata'")
+
         conn = sqlite3.connect(self.db_path)
         cursor = conn.cursor()
-
         try:
             if category_type == 'kumite':
-                # 组手比赛
                 competition_type = kwargs.get('competition_type')
                 age = kwargs.get('age')
-                gender = kwargs.get('gender') if age >=6 else None
+                gender = kwargs.get('gender') if age and age >= 6 else None
                 weight_input = kwargs.get('weight_input')
                 weight_flag = kwargs.get('weight_flag')
-                group_type = kwargs.get('group_type') if age >=6 else None
+                group_type = kwargs.get('group_type') if age and age >= 6 else None
+                open_category = kwargs.get('open_category')
 
                 if competition_type == 'weighted':
-                    # 分量制比赛
-                    category = self._generate_weight_category(age, gender, weight_input, weight_flag, group_type)
-                    query = "SELECT * FROM ath WHERE weight_catogory = ?"
+                    if not all([age, gender, group_type]) and age and age >= 6:
+                        logger.error("分量制比赛缺少必要参数")
+                        raise ValueError("分量制比赛需要提供 age, gender, group_type")
+                    category = self._generate_weight_category(
+                        age, gender, weight_input, weight_flag, group_type
+                    )
+                    query = "SELECT * FROM ath WHERE weight_category = ?"
                     cursor.execute(query, (category,))
                 else:
-                    # 无差别比赛
-                    open_category = kwargs.get('open_category')
+                    if not open_category:
+                        logger.error("无差别比赛缺少 open_category 参数")
+                        raise ValueError("无差别比赛需要提供 open_category")
                     query = "SELECT * FROM ath WHERE open = ?"
                     cursor.execute(query, (open_category,))
 
             elif category_type == 'kata':
-                # 型赛
                 age = kwargs.get('age')
                 gender = kwargs.get('gender')
                 group_type = kwargs.get('group_type')
+                if not all([age, gender, group_type]):
+                    logger.error("型赛缺少必要参数")
+                    raise ValueError("型赛需要提供 age, gender, group_type")
                 category = self._generate_kata_category(age, gender, group_type)
                 query = "SELECT * FROM ath WHERE kata = ?"
                 cursor.execute(query, (category,))
 
             athletes = cursor.fetchall()
             columns = [column[0] for column in cursor.description]
+            logger.info(f"查询到 {len(athletes)} 名运动员")
             return [dict(zip(columns, row)) for row in athletes]
 
         finally:
             conn.close()
 
-    def create_match_database(self, db_path):
+    def create_match_database(self, db_path: str) -> None:
         """创建比赛过程信息数据库"""
         conn = sqlite3.connect(db_path)
         cursor = conn.cursor()
+        try:
+            cursor.execute("""
+                CREATE TABLE IF NOT EXISTS matches (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    category TEXT NOT NULL,
+                    athlete1_id INTEGER NOT NULL,
+                    athlete2_id INTEGER NOT NULL,
+                    round INTEGER NOT NULL,
+                    result TEXT,
+                    FOREIGN KEY (athlete1_id) REFERENCES ath(id),
+                    FOREIGN KEY (athlete2_id) REFERENCES ath(id)
+                )
+            """)
+            conn.commit()
+            logger.info(f"比赛数据库创建成功: {db_path}")
+        except Exception as e:
+            logger.error(f"创建比赛数据库失败: {e}")
+            raise
+        finally:
+            conn.close()
 
-        # 创建比赛表
-        cursor.execute("""
-            CREATE TABLE IF NOT EXISTS matches (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                category TEXT,
-                athlete1_id INTEGER,
-                athlete2_id INTEGER,
-                round INTEGER,
-                result TEXT,
-                FOREIGN KEY (athlete1_id) REFERENCES ath(id),
-                FOREIGN KEY (athlete2_id) REFERENCES ath(id)
-            )
-         """)
-
-        conn.commit()
-        conn.close()
-
-    def generate_match_tree(self, athletes, category):
+    def generate_match_tree(self, athletes: List[Dict], category: str) -> List[Dict]:
         """生成比赛树状图结构"""
         if not athletes:
+            logger.warning("无运动员数据，无法生成比赛树")
             return []
 
-        # 简单实现单淘汰赛树
+        # 随机打乱选手顺序，模拟种子分配
+        random.shuffle(athletes)
         match_tree = []
         current_round = 1
         current_matches = athletes.copy()
@@ -122,20 +167,21 @@ class KarateMatchSystem:
         while len(current_matches) > 1:
             next_round = []
             for i in range(0, len(current_matches), 2):
-                if i+1 < len(current_matches):
+                if i + 1 < len(current_matches):
                     match = {
                         'round': current_round,
                         'match_id': len(match_tree) + 1,
-                        'athletes': [current_matches[i]['id'], current_matches[i+1]['id']],
+                        'category': category,
+                        'athletes': [current_matches[i]['id'], current_matches[i + 1]['id']],
                         'result': None
                     }
                     match_tree.append(match)
-                    next_round.append(None)  # 占位，实际比赛后更新胜者
+                    next_round.append(None)  # 占位，等待比赛结果
                 else:
-                    # 轮空选手直接进入下一轮
+                    # 轮空选手直接晋级
                     next_round.append(current_matches[i])
-
             current_matches = next_round
             current_round += 1
 
+        logger.info(f"生成比赛树，包含 {len(match_tree)} 场比赛")
         return match_tree

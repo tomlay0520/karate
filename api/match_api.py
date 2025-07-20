@@ -1,34 +1,40 @@
-# 引入 FastAPI 主类和 HTTP 异常处理模块
-from fastapi import FastAPI, HTTPException
-# 使用 Pydantic 创建请求数据模型
+from fastapi import FastAPI, HTTPException, UploadFile, File
 from pydantic import BaseModel
-# 引入可选类型支持
-from typing import Optional
-# 从项目内部导入比赛逻辑模块（假设放在上级目录的 Model 文件夹中）
+from typing import Optional, List, Dict
 from Model.match_logic import KarateMatchSystem
+from Model.excel_to_db import excel_to_db
+from config.settings import Settings
+import os
+import logging
 
-# 创建 FastAPI 应用实例
+# 配置日志
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logger = logging.getLogger(__name__)
+
 app = FastAPI()
+settings = Settings()
 
-# 定义前端请求数据的数据结构（比赛分组请求）
+
 class MatchRequest(BaseModel):
-    category_type: str  # 比赛类别，例如 'kumite'（组手）或 'kata'（型）
-    competition_type: Optional[str] = None  # 比赛类型，如 'weighted'（分量制）或 'open'（无差别）
-    age: Optional[int] = None  # 选手年龄
-    gender: Optional[str] = None  # 性别，'male' 或 'female'
-    weight_input: Optional[str] = None  # 用户输入的体重数据（字符串形式）
-    weight_flag: Optional[bool] = None  # 是否启用体重规则
-    group_type: Optional[str] = None  # 分组类型（可选扩展，如根据段位等）
-    open_category: Optional[str] = None  # 无差别比赛的类别（可选）
+    category_type: str
+    competition_type: Optional[str] = None
+    age: Optional[int] = None
+    gender: Optional[str] = None
+    weight_input: Optional[str] = None
+    weight_flag: Optional[bool] = None
+    group_type: Optional[str] = None
+    open_category: Optional[str] = None
 
-# API 路由：接收选手匹配请求（POST 方法），路径为 /api/match
+
+class MatchTreeRequest(BaseModel):
+    athletes: List[Dict]
+    category: str
+
+
 @app.post("/api/match")
 async def match_athletes(request: MatchRequest):
     try:
-        # 创建比赛系统对象，连接数据库文件
-        match_system = KarateMatchSystem("karate.db")
-        
-        # 根据用户请求参数获取匹配的选手信息
+        match_system = KarateMatchSystem(settings.DATABASE_PATH)
         athletes = match_system.get_athletes_by_category(
             request.category_type,
             competition_type=request.competition_type,
@@ -39,27 +45,68 @@ async def match_athletes(request: MatchRequest):
             group_type=request.group_type,
             open_category=request.open_category
         )
-        
-        # 返回匹配成功结果
+        logger.info(f"查询到 {len(athletes)} 名运动员")
         return {"status": "success", "athletes": athletes}
-    
     except Exception as e:
-        # 如果发生异常，返回 500 错误并附上错误信息
+        logger.error(f"查询运动员失败: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
-# API 路由：更新 A/B/C 分组名称，路径为 /api/group_names，使用 POST 方法
+
 @app.post("/api/group_names")
 async def update_group_names(group_a: str, group_b: str, group_c: str):
     try:
-        # 创建比赛系统对象，连接数据库
-        match_system = KarateMatchSystem("karate.db")
-        
-        # 调用系统逻辑，更新三组的名称
+        match_system = KarateMatchSystem(settings.DATABASE_PATH)
         match_system.update_group_names(group_a, group_b, group_c)
-        
-        # 返回更新成功状态
+        logger.info("组别名称更新成功")
         return {"status": "success"}
-    
     except Exception as e:
-        # 异常处理，返回 500 错误及具体原因
+        logger.error(f"更新组别名称失败: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.post("/api/upload")
+async def upload_excel(file: UploadFile = File(...)):
+    try:
+        if not file.filename.endswith('.xlsx'):
+            logger.error("上传文件必须为 .xlsx 格式")
+            raise HTTPException(status_code=400, detail="仅支持 .xlsx 文件")
+
+        file_path = f"./temp_{file.filename}"
+        with open(file_path, "wb") as f:
+            f.write(await file.read())
+        excel_to_db(file_path, settings.DATABASE_PATH)
+        os.remove(file_path)
+        logger.info("Excel 文件上传并导入成功")
+        return {"status": "success"}
+    except Exception as e:
+        logger.error(f"文件上传失败: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.post("/api/match_tree")
+async def generate_match_tree(request: MatchTreeRequest):
+    try:
+        match_system = KarateMatchSystem(settings.DATABASE_PATH)
+        match_tree = match_system.generate_match_tree(request.athletes, request.category)
+
+        # 将比赛树存储到 matches 数据库
+        conn = sqlite3.connect(settings.MATCH_DATABASE_PATH)
+        cursor = conn.cursor()
+        try:
+            for match in match_tree:
+                cursor.execute(
+                    """
+                    INSERT INTO matches (category, athlete1_id, athlete2_id, round, result)
+                    VALUES (?, ?, ?, ?, ?)
+                    """,
+                    (match['category'], match['athletes'][0], match['athletes'][1], match['round'], match['result'])
+                )
+            conn.commit()
+            logger.info(f"比赛树已存储到数据库，包含 {len(match_tree)} 场比赛")
+        finally:
+            conn.close()
+
+        return {"status": "success", "match_tree": match_tree}
+    except Exception as e:
+        logger.error(f"生成比赛树失败: {e}")
         raise HTTPException(status_code=500, detail=str(e))
