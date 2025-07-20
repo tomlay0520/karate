@@ -95,6 +95,7 @@ async def update_group_names(group_names: GroupNames):
 
 @app.post("/api/upload")
 async def upload_excel(file: UploadFile = File(...)):
+    test_database_path = '../data/ath.db'
     try:
         if not file.filename.endswith('.xlsx'):
             logger.error("上传文件必须为 .xlsx 格式")
@@ -103,7 +104,8 @@ async def upload_excel(file: UploadFile = File(...)):
         file_path = f"./temp_{file.filename}"
         with open(file_path, "wb") as f:
             f.write(await file.read())
-        excel_to_db(file_path, settings.DATABASE_PATH)
+        # excel_to_db(file_path, settings.DATABASE_PATH)
+        excel_to_db(file_path, test_database_path)
         os.remove(file_path)
         logger.info("Excel 文件上传并导入成功")
         return {"status": "success"}
