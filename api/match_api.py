@@ -6,6 +6,7 @@ from Model.excel_to_db import excel_to_db
 from config.settings import Settings
 import os
 import logging
+import sqlite3
 
 # 配置日志
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -13,6 +14,11 @@ logger = logging.getLogger(__name__)
 
 app = FastAPI()
 settings = Settings()
+
+# 初始化全局组别名称
+GROUP_A = "甲组"
+GROUP_B = "乙组"
+GROUP_C = "丙组"
 
 
 class MatchRequest(BaseModel):
@@ -29,6 +35,12 @@ class MatchRequest(BaseModel):
 class MatchTreeRequest(BaseModel):
     athletes: List[Dict]
     category: str
+
+
+class GroupNames(BaseModel):
+    group_a: str
+    group_b: str
+    group_c: str
 
 
 @app.post("/api/match")
@@ -52,16 +64,33 @@ async def match_athletes(request: MatchRequest):
         raise HTTPException(status_code=500, detail=str(e))
 
 
+@app.get("/api/group_names")
+async def get_group_names():
+    """
+    获取当前组别名称
+    """
+    return {
+        "group_a": GROUP_A,
+        "group_b": GROUP_B,
+        "group_c": GROUP_C
+    }
+
+
 @app.post("/api/group_names")
-async def update_group_names(group_a: str, group_b: str, group_c: str):
-    try:
-        match_system = KarateMatchSystem(settings.DATABASE_PATH)
-        match_system.update_group_names(group_a, group_b, group_c)
-        logger.info("组别名称更新成功")
-        return {"status": "success"}
-    except Exception as e:
-        logger.error(f"更新组别名称失败: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+async def update_group_names(group_names: GroupNames):
+    """
+    更新组别名称
+    """
+    global GROUP_A, GROUP_B, GROUP_C
+    GROUP_A = group_names.group_a
+    GROUP_B = group_names.group_b
+    GROUP_C = group_names.group_c
+
+    return {
+        "group_a": GROUP_A,
+        "group_b": GROUP_B,
+        "group_c": GROUP_C
+    }
 
 
 @app.post("/api/upload")

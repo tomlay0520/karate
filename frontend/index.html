@@ -153,6 +153,31 @@
             }
         });
 
+        // 页面加载时获取当前组别名称
+        async function loadGroupNames() {
+            try {
+                const response = await fetch('/api/group_names');
+                const result = await response.json();
+                if (response.ok) {
+                    const groupTypeSelect = document.getElementById('groupType');
+                    groupTypeSelect.innerHTML = `
+                        <option value="${result.group_a}">${result.group_a}</option>
+                        <option value="${result.group_b}">${result.group_b}</option>
+                        <option value="${result.group_c}">${result.group_c}</option>
+                    `;
+                    // 同步更新输入框
+                    document.getElementById('groupA').value = result.group_a;
+                    document.getElementById('groupB').value = result.group_b;
+                    document.getElementById('groupC').value = result.group_c;
+                }
+            } catch (error) {
+                console.error("加载组别失败:", error);
+            }
+        }
+
+        // 页面加载时调用
+        window.addEventListener('DOMContentLoaded', loadGroupNames);
+
         // 上传 Excel 文件
         document.getElementById('uploadForm').addEventListener('submit', async function(e) {
             e.preventDefault();
@@ -201,6 +226,17 @@
                 document.getElementById('groupNamesResult').innerHTML =
                     response.ok ? '<div class="alert alert-success">组别名称更新成功</div>' :
                     `<div class="alert alert-danger">更新失败: ${result.detail}</div>`;
+
+                // ✅ 更新组别下拉框选项
+                if (response.ok) {
+                    const groupTypeSelect = document.getElementById('groupType');
+                    groupTypeSelect.innerHTML = `
+                        <option value="${groupA}">${groupA}</option>
+                        <option value="${groupB}">${groupB}</option>
+                        <option value="${groupC}">${groupC}</option>
+                    `;
+                }
+
             } catch (error) {
                 document.getElementById('groupNamesResult').innerHTML =
                     `<div class="alert alert-danger">错误: ${error.message}</div>`;
