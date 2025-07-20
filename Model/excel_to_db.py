@@ -40,7 +40,7 @@ def excel_to_db(excel_file_path: str, db_file_path: str) -> None:
         conn = sqlite3.connect(db_file_path)
         cursor = conn.cursor()
 
-        # 创建表结构，增加 height 字段
+
         create_table_query = """
             CREATE TABLE IF NOT EXISTS ath (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -48,7 +48,6 @@ def excel_to_db(excel_file_path: str, db_file_path: str) -> None:
                 ath_name TEXT,
                 gender TEXT,
                 id_card TEXT UNIQUE,
-                height TEXT,
                 weight TEXT,
                 weight_category TEXT,
                 kata TEXT,
@@ -61,27 +60,27 @@ def excel_to_db(excel_file_path: str, db_file_path: str) -> None:
         # 重置主键序列
         cursor.execute("DELETE FROM sqlite_sequence WHERE name='ath';")
 
-        # 身份证格式验证（示例：18 位中国身份证号）
-        id_card_pattern = re.compile(r'^\d{17}[\dXx]$')
+        # # 身份证格式验证（示例：18 位中国身份证号）
+        # id_card_pattern = re.compile()
 
         for _, row in df.iterrows():
             if pd.isnull(row['姓名']) or row['姓名'] == '':
                 logger.warning(f"跳过空姓名记录：{row.to_dict()}")
                 continue
-            if not pd.isnull(row['身份证']) and not id_card_pattern.match(str(row['身份证'])):
-                logger.warning(f"身份证格式错误，跳过：{row['身份证']}")
-                continue
+            # if not pd.isnull(row['身份证']) and not id_card_pattern.match(str(row['身份证'])):
+            #     logger.warning(f"身份证格式错误，跳过：{row['身份证']}")
+            #     continue
 
             insert_query = """
                 INSERT OR IGNORE INTO ath (
-                    unit_name, ath_name, gender, id_card, height, weight,
+                    unit_name, ath_name, gender, id_card, weight,
                     weight_category, kata, open, remarks
                 )
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);
             """
             cursor.execute(insert_query, (
                 row['单位名称'], row['姓名'], row['性别'], row['身份证'],
-                row['height'], row['weight'], row['组_别_分量制'],
+                row['weight'], row['组_别_分量制'],
                 row['组_别_型'], row['组_别_无差'], row['备注']
             ))
 

@@ -8,4 +8,4 @@ class Settings(BaseSettings):  # pyright: ignore[reportGeneralTypeIssues]
     
     class Config:
         # 指定环境变量文件名，可自动读取 .env 文件中的配置
-        env_file = ".env"
+        env_file = ".venv"
