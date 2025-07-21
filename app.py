@@ -7,7 +7,8 @@ from api.match_api import app
 import os
 current_dir = os.path.dirname(os.path.abspath(__file__))
 # 构建 frontend 的绝对路径
-frontend_path = os.path.join(current_dir, "..", "frontend")
+# frontend_path = os.path.join(current_dir, "..", "frontend")
+frontend_path = os.path.join(current_dir, "frontend")
 
 # 挂载前端静态文件
 app.mount("/", StaticFiles(directory=frontend_path, html=True), name="frontend")
