@@ -73,59 +73,59 @@ class KarateMatchSystem:
         category = f"U{age}{group_text}{gender_text}子个人型"
         logger.info(f"生成型赛分组: {category}")
         return category
+#以下是核心的查找方法，用于根据前端输入进行模糊查找数据库中满足条件的运动员行
+    def get_athletes_by_category(self, category_type: str, competition_type: Optional[str], age: Optional[int],
+                                 gender: Optional[str], weight_input: Optional[float],
+                                 weight_flag: Optional[bool] = None,
+                                 group_type: Optional[str] = None, open_category: Optional[str] = None) -> List[Dict]:
+        categories = []
 
-    def get_athletes_by_category(self, category_type: str, **kwargs) -> List[Dict]:
-        """根据比赛类别查询选手"""
-        if category_type not in ['kumite', 'kata']:
-            logger.error(f"无效比赛类别: {category_type}")
-            raise ValueError("category_type 必须为 'kumite' 或 'kata'")
+        if category_type == "kumite":
+            if competition_type == "open":
+                if age is not None and gender is not None:
+                    category = self._generate_category(age, gender, open_category=open_category)
+                    athletes = self._fuzzy_match_athletes(category,category_type = "open")
+                    categories.append({"category": category, "athletes": athletes})
+            elif competition_type == "weighted":
+                if age is not None and gender is not None and weight_input is not None:
+                    category = self._generate_weight_category(age, gender, weight_input, weight_flag=weight_flag,
+                                                              group_type=group_type)
+                    athletes = self._fuzzy_match_athletes(category,category_type = "weighted")
+                    categories.append({"category": category, "athletes": athletes})
+            else:
+                if age is not None and gender is not None and weight_input is not None:
+                    category = self._generate_weight_category(age, gender, weight_input, weight_flag=weight_flag,
+                                                              group_type=group_type)
+                    athletes = self._fuzzy_match_athletes(category , category_type = "kata")
+                    categories.append({"category": category, "athletes": athletes})
 
+        elif category_type == "kata":
+            if age is not None and gender is not None:
+                category = self._generate_kata_category(age, gender, group_type=group_type)
+                athletes = self._fuzzy_match_athletes(category ,category_type = "kata")
+                categories.append({"category": category, "athletes": athletes})
+
+        return categories
+
+    #新增的辅助方法，用于智能查找
+    def _fuzzy_match_athletes(self, category: str, category_type: str) -> List[Dict]:
         conn = sqlite3.connect(self.db_path)
+        conn.row_factory = sqlite3.Row
         cursor = conn.cursor()
-        try:
-            if category_type == 'kumite':
-                competition_type = kwargs.get('competition_type')
-                age = kwargs.get('age')
-                gender = kwargs.get('gender') if age and age >= 6 else None
-                weight_input = kwargs.get('weight_input')
-                weight_flag = kwargs.get('weight_flag')
-                group_type = kwargs.get('group_type') if age and age >= 6 else None
-                open_category = kwargs.get('open_category')
 
-                if competition_type == 'weighted':
-                    if not all([age, gender, group_type]) and age and age >= 6:
-                        logger.error("分量制比赛缺少必要参数")
-                        raise ValueError("分量制比赛需要提供 age, gender, group_type")
-                    category = self._generate_weight_category(
-                        age, gender, weight_input, weight_flag, group_type
-                    )
-                    query = "SELECT * FROM ath WHERE weight_category = ?"
-                    cursor.execute(query, (category,))
-                else:
-                    if not open_category:
-                        logger.error("无差别比赛缺少 open_category 参数")
-                        raise ValueError("无差别比赛需要提供 open_category")
-                    query = "SELECT * FROM ath WHERE open = ?"
-                    cursor.execute(query, (open_category,))
+        type_field_map = {
+            "weighted": "weight_category",
+            "open": "open",
+            "kata": "kata"
+        }
+        field = type_field_map.get(category_type, "weight_category")  # 默认使用 weight_category
 
-            elif category_type == 'kata':
-                age = kwargs.get('age')
-                gender = kwargs.get('gender')
-                group_type = kwargs.get('group_type')
-                if not all([age, gender, group_type]):
-                    logger.error("型赛缺少必要参数")
-                    raise ValueError("型赛需要提供 age, gender, group_type")
-                category = self._generate_kata_category(age, gender, group_type)
-                query = "SELECT * FROM ath WHERE kata = ?"
-                cursor.execute(query, (category,))
-
-            athletes = cursor.fetchall()
-            columns = [column[0] for column in cursor.description]
-            logger.info(f"查询到 {len(athletes)} 名运动员")
-            return [dict(zip(columns, row)) for row in athletes]
-
-        finally:
-            conn.close()
+        query = f"SELECT * FROM ath WHERE {field} = ?"
+        logger.info(f"查找字段: {field}, 分类名: {category}")
+        cursor.execute(query, (category,))
+        athletes = [dict(row) for row in cursor.fetchall()]
+        conn.close()
+        return athletes
 
     def create_match_database(self, db_path: str) -> None:
         """创建比赛过程信息数据库"""
