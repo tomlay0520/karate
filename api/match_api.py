@@ -13,13 +13,12 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(
 logger = logging.getLogger(__name__)
 
 app = FastAPI()
-settings = Settings()#配置的数据库路径（在settings.py里，便于集中管理）
+settings = Settings()
 
 # 初始化全局组别名称
 GROUP_A = "甲组"
 GROUP_B = "乙组"
 GROUP_C = "丙组"
-
 
 class MatchRequest(BaseModel):
     category_type: str
@@ -31,24 +30,21 @@ class MatchRequest(BaseModel):
     group_type: Optional[str] = None
     open_category: Optional[str] = None
 
-
 class MatchTreeRequest(BaseModel):
     athletes: List[Dict]
     category: str
-
 
 class GroupNames(BaseModel):
     group_a: str
     group_b: str
     group_c: str
 
-
 @app.post("/api/match")
 async def match_athletes(request: MatchRequest):
     try:
         match_system = KarateMatchSystem(settings.DATABASE_PATH)
         athletes = match_system.get_athletes_by_category(
-            request.category_type,
+            category_type=request.category_type,
             competition_type=request.competition_type,
             age=request.age,
             gender=request.gender,
@@ -57,55 +53,44 @@ async def match_athletes(request: MatchRequest):
             group_type=request.group_type,
             open_category=request.open_category
         )
-        logger.info(f"查询到 {len(athletes)} 名运动员")
+        logger.info(f"查询到 {len(athletes[0]['athletes'])} 名运动员")
         return {"status": "success", "athletes": athletes}
     except Exception as e:
         logger.error(f"查询运动员失败: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
-
 @app.get("/api/group_names")
 async def get_group_names():
-    """
-    获取当前组别名称
-    """
     return {
         "group_a": GROUP_A,
         "group_b": GROUP_B,
         "group_c": GROUP_C
     }
 
-
 @app.post("/api/group_names")
 async def update_group_names(group_names: GroupNames):
-    """
-    更新组别名称
-    """
     global GROUP_A, GROUP_B, GROUP_C
     GROUP_A = group_names.group_a
     GROUP_B = group_names.group_b
     GROUP_C = group_names.group_c
-
+    match_system = KarateMatchSystem(settings.DATABASE_PATH)
+    match_system.update_group_names(GROUP_A, GROUP_B, GROUP_C)
     return {
         "group_a": GROUP_A,
         "group_b": GROUP_B,
         "group_c": GROUP_C
     }
 
-
 @app.post("/api/upload")
 async def upload_excel(file: UploadFile = File(...)):
-    # test_database_path = '../data/ath.db'
     try:
         if not file.filename.endswith('.xlsx'):
             logger.error("上传文件必须为 .xlsx 格式")
             raise HTTPException(status_code=400, detail="仅支持 .xlsx 文件")
-
         file_path = f"./temp_{file.filename}"
         with open(file_path, "wb") as f:
             f.write(await file.read())
-        excel_to_db(file_path, settings.DATABASE_PATH)#使用配置的数据库路径
-        # excel_to_db(file_path, test_database_path)
+        excel_to_db(file_path, settings.DATABASE_PATH)
         os.remove(file_path)
         logger.info("Excel 文件上传并导入成功")
         return {"status": "success"}
@@ -113,30 +98,35 @@ async def upload_excel(file: UploadFile = File(...)):
         logger.error(f"文件上传失败: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
-
 @app.post("/api/match_tree")
 async def generate_match_tree(request: MatchTreeRequest):
     try:
+        if not request.athletes or not request.category:
+            raise ValueError("运动员列表和类别不能为空")
         match_system = KarateMatchSystem(settings.DATABASE_PATH)
         match_tree = match_system.generate_match_tree(request.athletes, request.category)
-
-        # 将比赛树存储到 matches 数据库
         conn = sqlite3.connect(settings.MATCH_DATABASE_PATH)
         cursor = conn.cursor()
         try:
             for match in match_tree:
                 cursor.execute(
                     """
-                    INSERT INTO matches (category, athlete1_id, athlete2_id, round, result)
-                    VALUES (?, ?, ?, ?, ?)
+                    INSERT INTO matches (category, athlete1_id, athlete2_id, round, result, is_bye)
+                    VALUES (?, ?, ?, ?, ?, ?)
                     """,
-                    (match['category'], match['athletes'][0], match['athletes'][1], match['round'], match['result'])
+                    (
+                        match['category'],
+                        match['athletes'][0],
+                        match['athletes'][1] if match['athletes'][1] is not None else None,
+                        match['round'],
+                        match['result'],
+                        match['is_bye']
+                    )
                 )
             conn.commit()
             logger.info(f"比赛树已存储到数据库，包含 {len(match_tree)} 场比赛")
         finally:
             conn.close()
-
         return {"status": "success", "match_tree": match_tree}
     except Exception as e:
         logger.error(f"生成比赛树失败: {e}")
