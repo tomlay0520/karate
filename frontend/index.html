@@ -140,116 +140,339 @@
         }
 
         .match-node {
-            border: 1px solid #ccc;
-            padding: 15px;
-            margin: 10px;
-            border-radius: 5px;
+            border: 1px solid #e0e0e0;
+            padding: 20px;
+            margin: 15px 0;
+            border-radius: 10px;
+            background-color: white;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .match-node:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.1);
+            border-color: var(--primary);
+        }
+
+        .match-node::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 5px;
+            height: 100%;
+            background: var(--primary);
+        }
+
+        .match-id {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: var(--warning);
+            color: var(--dark);
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: bold;
+        }
+
+        .athlete-list {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 25px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        }
+
+        .athlete-item {
+            padding: 12px 15px;
+            border-bottom: 1px solid #eee;
+            transition: all 0.3s ease;
+        }
+
+        .athlete-item:hover {
             background-color: #f9f9f9;
         }
-        .loading { display: none; color: #007bff; }
+
+        .athlete-item:last-child {
+            border-bottom: none;
+        }
+
+        .match-node.bye {
+            background-color: #e0f7fa;
+        }
+
+        .connector {
+            position: absolute;
+            border-left: 2px solid var(--primary);
+            border-top: 2px solid var(--primary);
+            height: 50%;
+            width: 50%;
+            top: 50%;
+            right: -50%;
+        }
+
+        .match-node:last-child .connector {
+            display: none;
+        }
+
+        .loading {
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 15px;
+            color: var(--primary);
+            font-weight: 500;
+        }
+
+        .spinner {
+            width: 24px;
+            height: 24px;
+            border: 3px solid rgba(211, 47, 47, 0.2);
+            border-top: 3px solid var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-right: 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .alert {
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+        }
+
+        .section-title {
+            position: relative;
+            padding-left: 15px;
+            margin-bottom: 20px;
+            font-weight: 600;
+            color: var(--secondary);
+        }
+
+        .section-title::before {
+            content: "";
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 5px;
+            height: 24px;
+            background: var(--primary);
+            border-radius: 3px;
+        }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1 class="mb-4">空手道比赛计分系统</h1>
+        <div class="header">
+            <h1>空手道比赛计分系统</h1>
+        </div>
 
         <!-- 导入运动员数据 -->
-        <div class="card mb-4">
-            <div class="card-header">导入运动员数据</div>
+        <div class="card">
+            <div class="card-header">
+                <span>导入运动员数据</span>
+            </div>
             <div class="card-body">
                 <form id="uploadForm" enctype="multipart/form-data">
-                    <div class="mb-3">
-                        <label for="excelFile" class="form-label">选择 Excel 文件 (.xlsx)</label>
-                        <input type="file" class="form-control" id="excelFile" accept=".xlsx" required>
+                    <div class="form-section">
+                        <h5 class="section-title">上传运动员数据</h5>
+                        <div class="mb-3">
+                            <label for="excelFile" class="form-label">选择 Excel 文件 (.xlsx)</label>
+                            <input type="file" class="form-control" id="excelFile" accept=".xlsx" required>
+                            <div class="form-text mt-2">请确保文件格式正确，包含姓名、年龄、性别、体重和组别等信息</div>
+                        </div>
                     </div>
-                    <button type="submit" class="btn btn-primary">上传</button>
+
+                    <button type="submit" class="btn btn-primary w-100">
+                        上传文件
+                    </button>
+
                     <div id="uploadResult" class="mt-3"></div>
-                    <div id="uploadLoading" class="loading">正在上传...</div>
+                    <div id="uploadLoading" class="loading">
+                        <div class="spinner"></div>
+                        <span>正在上传...</span>
+                    </div>
                 </form>
             </div>
         </div>
 
         <!-- 更新组别名称 -->
-        <div class="card mb-4">
-            <div class="card-header">更新组别名称</div>
+        <div class="card">
+            <div class="card-header">
+                <span>更新组别名称</span>
+            </div>
             <div class="card-body">
                 <form id="groupNamesForm">
-                    <div class="row mb-3">
-                        <div class="col">
-                            <input type="text" class="form-control" id="groupA" placeholder="甲组名称" required>
-                        </div>
-                        <div class="col">
-                            <input type="text" class="form-control" id="groupB" placeholder="乙组名称" required>
-                        </div>
-                        <div class="col">
-                            <input type="text" class="form-control" id="groupC" placeholder="丙组名称" required>
+                    <div class="form-section">
+                        <h5 class="section-title">组别设置</h5>
+                        <div class="row">
+                            <div class="col-md-4 mb-3">
+                                <label for="groupA" class="form-label">甲组名称</label>
+                                <input type="text" class="form-control" id="groupA" placeholder="甲组名称" required>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label for="groupB" class="form-label">乙组名称</label>
+                                <input type="text" class="form-control" id="groupB" placeholder="乙组名称" required>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label for="groupC" class="form-label">丙组名称</label>
+                                <input type="text" class="form-control" id="groupC" placeholder="丙组名称" required>
+                            </div>
                         </div>
                     </div>
-                    <button type="submit" class="btn btn-primary">更新</button>
+
+                    <button type="submit" class="btn btn-primary w-100">
+                        更新组别名称
+                    </button>
+
                     <div id="groupNamesResult" class="mt-3"></div>
-                    <div id="groupNamesLoading" class="loading">正在更新...</div>
+                    <div id="groupNamesLoading" class="loading">
+                        <div class="spinner"></div>
+                        <span>正在更新...</span>
+                    </div>
                 </form>
             </div>
         </div>
 
         <!-- 查询运动员 -->
-        <div class="card mb-4">
-            <div class="card-header">查询运动员并生成比赛树</div>
+        <div class="card">
+            <div class="card-header">
+                <span>查询运动员并生成比赛树</span>
+            </div>
             <div class="card-body">
                 <form id="matchForm">
-                    <div class="mb-3">
-                        <label for="categoryType" class="form-label">比赛类别</label>
-                        <select class="form-control" id="categoryType" required>
-                            <option value="kumite">组手</option>
-                            <option value="kata">型赛</option>
-                        </select>
-                    </div>
-                    <div id="kumiteFields">
+                    <div class="form-section">
+                        <h5 class="section-title">比赛设置</h5>
                         <div class="mb-3">
-                            <label for="competitionType" class="form-label">比赛类型</label>
-                            <select class="form-control" id="competitionType">
-                                <option value="weighted">分量制</option>
-                                <option value="open">无差别</option>
-                            </select>
-                        </div>
-                        <div class="mb-3">
-                            <label for="age" class="form-label">年龄</label>
-                            <input type="number" class="form-control" id="age" min="0" required>
-                        </div>
-                        <div class="mb-3" id="genderField">
-                            <label for="gender" class="form-label">性别</label>
-                            <select class="form-control" id="gender">
-                                <option value="male">男</option>
-                                <option value="female">女</option>
-                            </select>
-                        </div>
-                        <div class="mb-3" id="weightField">
-                            <label for="weightInput" class="form-label">体重 (KG)</label>
-                            <input type="text" class="form-control" id="weightInput">
-                        </div>
-                        <div class="mb-3" id="weightFlagField">
-                            <div class="form-check">
-                                <input type="checkbox" class="form-check-input" id="weightFlag">
-                                <label class="form-check-label" for="weightFlag">不限体重</label>
+                            <label class="form-label">比赛类别</label><br>
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="radio" name="categoryType" id="kumite" value="kumite" required>
+                                <label class="form-check-label" for="kumite">组手</label>
+                            </div>
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="radio" name="categoryType" id="kata" value="kata">
+                                <label class="form-check-label" for="kata">型</label>
                             </div>
                         </div>
-                        <div class="mb-3" id="groupTypeField">
-                            <label for="groupType" class="form-label">组别</label>
-                            <select class="form-control" id="groupType">
-                                <option value="甲组">甲组</option>
-                                <option value="乙组">乙组</option>
-                                <option value="丙组">丙组</option>
-                            </select>
+
+                        <!-- 组手字段 -->
+                        <div id="kumiteFields" style="display: none;">
+                            <div class="mb-3">
+                                <label class="form-label">比赛类型</label><br>
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="radio" name="competitionType" id="weighted" value="weighted" checked>
+                                    <label class="form-check-label" for="weighted">分量制</label>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="radio" name="competitionType" id="open" value="open">
+                                    <label class="form-check-label" for="open">无差别</label>
+                                </div>
+                            </div>
+
+                            <!-- 分量制字段 -->
+                            <div id="weightedFields">
+                                <div class="row">
+                                    <div class="col-md-3 mb-3">
+                                        <label for="age" class="form-label">年龄</label>
+                                        <input type="number" class="form-control" id="age" min="0" max="100" required>
+                                    </div>
+                                    <div class="col-md-3 mb-3" id="genderField" style="display: none;">
+                                        <label class="form-label">性别</label>
+                                        <select class="form-control" id="gender">
+                                            <option value="male">男</option>
+                                            <option value="female">女</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-3 mb-3" id="groupTypeField" style="display: none;">
+                                        <label for="groupType" class="form-label">组别</label>
+                                        <select class="form-control" id="groupType">
+                                            <option value="甲组">甲组</option>
+                                            <option value="乙组">乙组</option>
+                                            <option value="丙组">丙组</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-3 mb-3">
+                                        <label for="weightInput" class="form-label">体重 (KG)</label>
+                                        <div class="input-group">
+                                            <input type="text" class="form-control" id="weightInput" placeholder="+50 或 -50">
+                                            <div class="input-group-text">
+                                                <div class="form-check form-switch">
+                                                    <input type="checkbox" class="form-check-input" id="weightFlag">
+                                                    <label class="form-check-label" for="weightFlag">不限</label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 无差别字段 -->
+                            <div id="openFields" style="display: none;">
+                                <div class="mb-3">
+                                    <label for="openCategory" class="form-label">无差别类别</label>
+                                    <input type="text" class="form-control" id="openCategory" placeholder="输入无差别类别" required>
+                                </div>
+                            </div>
                         </div>
-                        <div class="mb-3" id="openCategoryField" style="display: none;">
-                            <label for="openCategory" class="form-label">无差别类别</label>
-                            <input type="text" class="form-control" id="openCategory">
+
+                        <!-- 型字段 -->
+                        <div id="kataFields" style="display: none;">
+                            <div class="row">
+                                <div class="col-md-4 mb-3">
+                                    <label for="kataAge" class="form-label">年龄</label>
+                                    <input type="number" class="form-control" id="kataAge" min="0" max="100" required>
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <label class="form-label">性别</label>
+                                    <select class="form-control" id="kataGender">
+                                        <option value="male">男</option>
+                                        <option value="female">女</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <label for="kataGroupType" class="form-label">组别</label>
+                                    <select class="form-control" id="kataGroupType">
+                                        <option value="甲组">甲组</option>
+                                        <option value="乙组">乙组</option>
+                                        <option value="丙组">丙组</option>
+                                    </select>
+                                </div>
+                            </div>
                         </div>
                     </div>
-                    <button type="submit" class="btn btn-primary">查询并生成比赛树</button>
+
+                    <button type="submit" class="btn btn-primary w-100">
+                        查询并生成比赛树
+                    </button>
+
                     <div id="matchResult" class="mt-3"></div>
-                    <div id="matchLoading" class="loading">正在查询...</div>
-                    <div id="matchTree" class="match-tree"></div>
+                    <div id="matchLoading" class="loading">
+                        <div class="spinner"></div>
+                        <span>正在查询...</span>
+                    </div>
+
+                    <div id="athleteList" class="athlete-list mt-4" style="display:none;">
+                        <h5 class="section-title">参赛运动员</h5>
+                        <div id="athleteListContent"></div>
+                    </div>
+
+                    <div id="matchTree" class="match-tree mt-4" style="display:none;">
+                        <h5 class="section-title">比赛树</h5>
+                        <div id="matchTreeContent"></div>
+                    </div>
                 </form>
             </div>
         </div>
@@ -258,45 +481,72 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         // 动态显示/隐藏字段
-        document.getElementById('categoryType').addEventListener('change', function() {
-            const kumiteFields = document.getElementById('kumiteFields');
-            kumiteFields.style.display = this.value === 'kumite' ? 'block' : 'none';
+        document.querySelectorAll('input[name="categoryType"]').forEach(radio => {
+            radio.addEventListener('change', function() {
+                const kumiteFields = document.getElementById('kumiteFields');
+                const kataFields = document.getElementById('kataFields');
+                kumiteFields.style.display = this.value === 'kumite' ? 'block' : 'none';
+                kataFields.style.display = this.value === 'kata' ? 'block' : 'none';
+                document.getElementById('athleteList').style.display = 'none';
+                document.getElementById('matchTree').style.display = 'none';
+            });
         });
 
-        document.getElementById('competitionType').addEventListener('change', function() {
-            const openCategoryField = document.getElementById('openCategoryField');
-            const weightField = document.getElementById('weightField');
-            const weightFlagField = document.getElementById('weightFlagField');
-            openCategoryField.style.display = this.value === 'open' ? 'block' : 'none';
-            weightField.style.display = this.value === 'weighted' ? 'block' : 'none';
-            weightFlagField.style.display = this.value === 'weighted' ? 'block' : 'none';
+        // 组手比赛类型切换
+        document.querySelectorAll('input[name="competitionType"]').forEach(radio => {
+            radio.addEventListener('change', function() {
+                const weightedFields = document.getElementById('weightedFields');
+                const openFields = document.getElementById('openFields');
+                weightedFields.style.display = this.value === 'weighted' ? 'block' : 'none';
+                openFields.style.display = this.value === 'open' ? 'block' : 'none';
+
+                // 禁用/启用分量制字段（无差别时）
+                const fieldsToToggle = ['age', 'weightInput', 'weightFlag', 'groupType', 'gender'];
+                fieldsToToggle.forEach(id => {
+                    const element = document.getElementById(id);
+                    element.disabled = this.value === 'open';
+                    if (this.value === 'open') element.value = '';
+                });
+            });
         });
 
+        // 年龄输入逻辑（分量制）
         document.getElementById('age').addEventListener('input', function() {
+            const age = parseInt(this.value);
             const genderField = document.getElementById('genderField');
             const groupTypeField = document.getElementById('groupTypeField');
-            if (this.value && parseInt(this.value) <= 5) {
+            if (age <= 5) {
                 genderField.style.display = 'none';
                 groupTypeField.style.display = 'none';
+                document.getElementById('gender').value = '';
+                document.getElementById('groupType').value = '';
             } else {
                 genderField.style.display = 'block';
                 groupTypeField.style.display = 'block';
             }
         });
 
-        // 页面加载时获取当前组别名称
+        // 体重标记切换
+        document.getElementById('weightFlag').addEventListener('change', function() {
+            const weightInput = document.getElementById('weightInput');
+            weightInput.disabled = this.checked;
+            if (this.checked) weightInput.value = '';
+        });
+
+        // 加载组别名称
         async function loadGroupNames() {
             try {
                 const response = await fetch('/api/group_names');
                 const result = await response.json();
                 if (response.ok) {
-                    const groupTypeSelect = document.getElementById('groupType');
-                    groupTypeSelect.innerHTML = `
-                        <option value="${result.group_a}">${result.group_a}</option>
-                        <option value="${result.group_b}">${result.group_b}</option>
-                        <option value="${result.group_c}">${result.group_c}</option>
-                    `;
-                    // 同步更新输入框
+                    ['groupType', 'kataGroupType'].forEach(selectId => {
+                        const select = document.getElementById(selectId);
+                        select.innerHTML = `
+                            <option value="${result.group_a}">${result.group_a}</option>
+                            <option value="${result.group_b}">${result.group_b}</option>
+                            <option value="${result.group_c}">${result.group_c}</option>
+                        `;
+                    });
                     document.getElementById('groupA').value = result.group_a;
                     document.getElementById('groupB').value = result.group_b;
                     document.getElementById('groupC').value = result.group_c;
@@ -305,8 +555,6 @@
                 console.error("加载组别失败:", error);
             }
         }
-
-        // 页面加载时调用
         window.addEventListener('DOMContentLoaded', loadGroupNames);
 
         // 上传 Excel 文件
@@ -320,7 +568,7 @@
             }
             const formData = new FormData();
             formData.append('file', fileInput.files[0]);
-            document.getElementById('uploadLoading').style.display = 'block';
+            document.getElementById('uploadLoading').style.display = 'flex';
 
             try {
                 const response = await fetch('/api/upload', {
@@ -345,7 +593,7 @@
             const groupA = document.getElementById('groupA').value;
             const groupB = document.getElementById('groupB').value;
             const groupC = document.getElementById('groupC').value;
-            document.getElementById('groupNamesLoading').style.display = 'block';
+            document.getElementById('groupNamesLoading').style.display = 'flex';
 
             try {
                 const response = await fetch('/api/group_names', {
@@ -358,16 +606,16 @@
                     response.ok ? '<div class="alert alert-success">组别名称更新成功</div>' :
                     `<div class="alert alert-danger">更新失败: ${result.detail}</div>`;
 
-                // ✅ 更新组别下拉框选项
                 if (response.ok) {
-                    const groupTypeSelect = document.getElementById('groupType');
-                    groupTypeSelect.innerHTML = `
-                        <option value="${groupA}">${groupA}</option>
-                        <option value="${groupB}">${groupB}</option>
-                        <option value="${groupC}">${groupC}</option>
-                    `;
+                    ['groupType', 'kataGroupType'].forEach(selectId => {
+                        const select = document.getElementById(selectId);
+                        select.innerHTML = `
+                            <option value="${result.group_a}">${result.group_a}</option>
+                            <option value="${result.group_b}">${result.group_b}</option>
+                            <option value="${result.group_c}">${result.group_c}</option>
+                        `;
+                    });
                 }
-
             } catch (error) {
                 document.getElementById('groupNamesResult').innerHTML =
                     `<div class="alert alert-danger">错误: ${error.message}</div>`;
@@ -379,29 +627,25 @@
         // 查询运动员并生成比赛树
         document.getElementById('matchForm').addEventListener('submit', async function(e) {
             e.preventDefault();
-            const categoryType = document.getElementById('categoryType').value;
-            const competitionType = document.getElementById('competitionType').value;
-            const age = document.getElementById('age').value;
-            const gender = document.getElementById('gender').value;
-            const weightInput = document.getElementById('weightInput').value;
-            const weightFlag = document.getElementById('weightFlag').checked;
-            const groupType = document.getElementById('groupType').value;
-            const openCategory = document.getElementById('openCategory').value;
+            const categoryType = document.querySelector('input[name="categoryType"]:checked').value;
+            let requestBody = { category_type: categoryType };
 
-            if (!age) {
-                document.getElementById('matchResult').innerHTML =
-                    '<div class="alert alert-danger">请输入年龄</div>';
-                return;
-            }
-
-            const requestBody = { category_type: categoryType };
             if (categoryType === 'kumite') {
+                const competitionType = document.querySelector('input[name="competitionType"]:checked').value;
                 requestBody.competition_type = competitionType;
-                requestBody.age = parseInt(age);
+
                 if (competitionType === 'weighted') {
-                    requestBody.weight_input = weightInput;
-                    requestBody.weight_flag = weightFlag;
-                    if (parseInt(age) > 5) {
+                    const age = document.getElementById('age').value;
+                    if (!age || !Number.isInteger(+age) || age < 0 || age > 100) {
+                        document.getElementById('matchResult').innerHTML =
+                            '<div class="alert alert-danger">年龄必须为0-100的整数</div>';
+                        return;
+                    }
+                    requestBody.age = parseInt(age);
+
+                    if (age > 5) {
+                        const gender = document.getElementById('gender').value;
+                        const groupType = document.getElementById('groupType').value;
                         if (!gender || !groupType) {
                             document.getElementById('matchResult').innerHTML =
                                 '<div class="alert alert-danger">年龄大于5时必须选择性别和组别</div>';
@@ -410,7 +654,20 @@
                         requestBody.gender = gender;
                         requestBody.group_type = groupType;
                     }
+
+                    const weightFlag = document.getElementById('weightFlag').checked;
+                    const weightInput = document.getElementById('weightInput').value;
+                    requestBody.weight_flag = weightFlag;
+                    if (!weightFlag) {
+                        if (!weightInput || !/^(\+|-)\d+$/.test(weightInput)) {
+                            document.getElementById('matchResult').innerHTML =
+                                '<div class="alert alert-danger">请输入有效体重格式，如 +50 或 -50</div>';
+                            return;
+                        }
+                        requestBody.weight_input = weightInput;
+                    }
                 } else {
+                    const openCategory = document.getElementById('openCategory').value;
                     if (!openCategory) {
                         document.getElementById('matchResult').innerHTML =
                             '<div class="alert alert-danger">无差别比赛需要提供类别</div>';
@@ -419,17 +676,25 @@
                     requestBody.open_category = openCategory;
                 }
             } else {
-                if (!gender || !groupType) {
+                const kataAge = document.getElementById('kataAge').value;
+                const kataGender = document.getElementById('kataGender').value;
+                const kataGroupType = document.getElementById('kataGroupType').value;
+                if (!kataAge || !Number.isInteger(+kataAge) || kataAge < 0 || kataAge > 100) {
+                    document.getElementById('matchResult').innerHTML =
+                        '<div class="alert alert-danger">年龄必须为0-100的整数</div>';
+                    return;
+                }
+                if (!kataGender || !kataGroupType) {
                     document.getElementById('matchResult').innerHTML =
                         '<div class="alert alert-danger">型赛需要选择性别和组别</div>';
                     return;
                 }
-                requestBody.age = parseInt(age);
-                requestBody.gender = gender;
-                requestBody.group_type = groupType;
+                requestBody.age = parseInt(kataAge);
+                requestBody.gender = kataGender;
+                requestBody.group_type = kataGroupType;
             }
 
-            document.getElementById('matchLoading').style.display = 'block';
+            document.getElementById('matchLoading').style.display = 'flex';
             try {
                 const response = await fetch('/api/match', {
                     method: 'POST',
@@ -438,36 +703,56 @@
                 });
                 const result = await response.json();
                 if (response.ok) {
+                    const athletes = result.athletes[0].athletes;
                     document.getElementById('matchResult').innerHTML =
-                        `<div class="alert alert-success">找到 ${result.athletes.length} 名运动员</div>`;
+                        `<div class="alert alert-success">找到 ${athletes.length} 名运动员</div>`;
 
-                    // 显示运动员列表
-                    const matchTreeDiv = document.getElementById('matchTree');
-                    matchTreeDiv.innerHTML = '<h5>运动员列表</h5><ul>' +
-                        result.athletes.map(a => `<li>${a.ath_name} (ID: ${a.id})</li>`).join('') + '</ul>';
+                    const athleteListContent = document.getElementById('athleteListContent');
+                    athleteListContent.innerHTML = '<ul>' +
+                        athletes.map(a => `<li class="athlete-item">${a.ath_name} (ID: ${a.id})</li>`).join('') +
+                        '</ul>';
+                    document.getElementById('athleteList').style.display = 'block';
 
-                    // 生成比赛树
                     const matchTreeResponse = await fetch('/api/match_tree', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ athletes: result.athletes, category: requestBody.category_type })
+                        body: JSON.stringify({ athletes: athletes, category: result.athletes[0].category })
                     });
                     const matchTreeResult = await matchTreeResponse.json();
                     if (matchTreeResponse.ok) {
-                        matchTreeDiv.innerHTML += '<h5>比赛树</h5>';
+                        const matchTreeContent = document.getElementById('matchTreeContent');
+                        matchTreeContent.innerHTML = '';
+                        const rounds = {};
                         matchTreeResult.match_tree.forEach(match => {
-                            const node = document.createElement('div');
-                            node.className = 'match-node';
-                            node.innerHTML = `
-                                <strong>轮次 ${match.round} - 比赛 ${match.match_id}</strong><br>
-                                选手1: ${result.athletes.find(a => a.id === match.athletes[0])?.ath_name || '待定'} vs
-                                选手2: ${result.athletes.find(a => a.id === match.athletes[1])?.ath_name || '待定'}<br>
-                                结果: ${match.result || '未进行'}
-                            `;
-                            matchTreeDiv.appendChild(node);
+                            if (!rounds[match.round]) rounds[match.round] = [];
+                            rounds[match.round].push(match);
                         });
+
+                        Object.keys(rounds).sort((a, b) => a - b).forEach(round => {
+                            const roundContainer = document.createElement('div');
+                            roundContainer.className = 'round-container';
+                            roundContainer.innerHTML = `<div class="round-header">轮次 ${round}</div>`;
+                            const matchRow = document.createElement('div');
+                            matchRow.className = 'row';
+                            rounds[round].forEach(match => {
+                                const node = document.createElement('div');
+                                node.className = `col-md-3 match-node ${match.is_bye ? 'bye' : ''}`;
+                                const athlete1 = athletes.find(a => a.id === match.athletes[0])?.ath_name || '待定';
+                                const athlete2 = match.is_bye ? '轮空' : (athletes.find(a => a.id === match.athletes[1])?.ath_name || '待定');
+                                node.innerHTML = `
+                                    <div class="match-id">${match.match_id}</div>
+                                    <strong>${athlete1}</strong> vs <strong>${athlete2}</strong><br>
+                                    结果: ${match.result || '未进行'}
+                                    <div class="connector"></div>
+                                `;
+                                matchRow.appendChild(node);
+                            });
+                            roundContainer.appendChild(matchRow);
+                            matchTreeContent.appendChild(roundContainer);
+                        });
+                        document.getElementById('matchTree').style.display = 'block';
                     } else {
-                        matchTreeDiv.innerHTML +=
+                        document.getElementById('matchResult').innerHTML =
                             `<div class="alert alert-danger">生成比赛树失败: ${matchTreeResult.detail}</div>`;
                     }
                 } else {
