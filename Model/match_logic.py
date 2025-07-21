@@ -37,9 +37,9 @@ class KarateMatchSystem:
         if age <= 5:
             category = f"U{age}男女混合"
             if not weight_flag and weight_input:
-                category += f"{weight_input}组"
+                category += f"{weight_input}KG"
             else:
-                category += "组"
+                category += "KG"
         else:
             if not group_type or group_type not in self.group_names:
                 logger.error(f"无效组别类型: {group_type}")
