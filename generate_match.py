@@ -1,14 +1,29 @@
 import pandas as pd
 import os
+import tempfile
 
 
-def generate_kumite_markdown(input_folder, output_path):
+def generate_kumite_markdown(input_folder, output_path=None):
     """
     生成组手对阵表的 Markdown 文件。
 
     :param input_folder: 组手子表所在文件夹路径
-    :param output_path: Markdown 文件保存路径
+    :param output_path: Markdown 文件保存路径，如果为 None，则使用系统临时目录下的默认路径
     """
+    if output_path is None:
+        # 使用系统临时目录生成一个默认文件名
+        # output_path = os.path.join(tempfile.gettempdir(), "match_kumite.md")
+        output_path = './subtable/match_kumite/match_kumite.md'
+
+    # 确保输出路径的目录存在
+    output_dir = os.path.dirname(output_path)
+    if not os.path.exists(output_dir):
+        try:
+            os.makedirs(output_dir)
+        except OSError as e:
+            print(f"无法创建文件夹 {output_dir}: {e}")
+            return
+
     markdown_content = ""
     for root, dirs, files in os.walk(input_folder):
         for file in files:
@@ -25,13 +40,16 @@ def generate_kumite_markdown(input_folder, output_path):
                         markdown_content += f"{combined_column[i]} vs 轮空\n\n"
 
     # 保存 Markdown 文件
-    with open(output_path, 'w', encoding='utf-8') as md_file:
-        md_file.write(markdown_content)
+    try:
+        with open(output_path, 'w', encoding='utf-8') as md_file:
+            md_file.write(markdown_content)
+        print(f"Markdown 文件已成功保存到 {output_path}")
+    except PermissionError:
+        print(f"权限不足，无法写入文件 {output_path}")
 
 
 if __name__ == '__main__':
     # 组手子表所在文件夹路径，需要根据实际情况修改
     input_folder = './subtable/按分量制拆分的子表/组手'
-    # Markdown 文件保存路径，需要根据实际情况修改
-    output_path = './subtable/match_kumite'
-    generate_kumite_markdown(input_folder, output_path)
+    # Markdown 文件保存路径，这里不指定，将使用默认的临时目录路径
+    generate_kumite_markdown(input_folder)
