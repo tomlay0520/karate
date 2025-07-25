@@ -1,0 +1,1253 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>2025年第十四回全接触空手道大会（天津）</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f4f4f4;
+        }
+        header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-align: center;
+            padding: 2rem 0;
+            margin-bottom: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        h1 {
+            margin: 0;
+            font-size: 2.5rem;
+        }
+        .subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+        .controls {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+        }
+        .filter-section {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            align-items: center;
+        }
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+        }
+        label {
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
+        select, input {
+            padding: 0.5rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 1rem;
+        }
+        button {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: background 0.3s;
+            margin-right: 0.5rem; /* 按钮间距 */
+        }
+        button:hover {
+            background: #5a6fd8;
+        }
+        .tabs {
+            display: flex;
+            margin-bottom: 1rem;
+            border-bottom: 1px solid #ddd;
+            flex-wrap: wrap; /* 允许标签换行 */
+        }
+        .tab {
+            padding: 1rem 2rem;
+            cursor: pointer;
+            background: #e0e0e0;
+            border: 1px solid #ddd;
+            border-bottom: none;
+            border-radius: 5px 5px 0 0;
+            margin-right: 0.5rem;
+            margin-bottom: 0.5rem; /* 防止换行时粘连 */
+            white-space: nowrap; /* 防止标签内文字换行 */
+        }
+        .tab.active {
+            background: white;
+            font-weight: bold;
+        }
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            border-radius: 8px;
+            overflow: hidden;
+            table-layout: fixed; /* 使列宽更可控 */
+        }
+        th, td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+            word-wrap: break-word; /* 长文字换行 */
+        }
+        th {
+            background: #667eea;
+            color: white;
+            font-weight: bold;
+        }
+        tr:nth-child(even) {
+            background-color: #f8f9fa;
+        }
+        tr:hover {
+            background-color: #e9ecef;
+        }
+        .category-header {
+            background: #764ba2;
+            color: white;
+            padding: 0.5rem 1rem;
+            margin: 1rem 0;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+        .no-data {
+            text-align: center;
+            padding: 2rem;
+            color: #666;
+        }
+
+        /* --- 新增对阵表样式 --- */
+        .bracket-container {
+            margin-bottom: 3rem;
+            background-color: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .bracket-title {
+            font-size: 1.5rem;
+            margin-bottom: 1.5rem;
+            color: #764ba2;
+            border-bottom: 2px solid #764ba2;
+            padding-bottom: 0.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .bracket-controls {
+            font-size: 1rem;
+            font-weight: normal;
+        }
+        .round {
+            display: inline-block;
+            vertical-align: top;
+            margin-right: 20px;
+        }
+        .round-title {
+            text-align: center;
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #667eea;
+        }
+        .match {
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            margin-bottom: 15px;
+            width: 200px; /* 固定宽度 */
+            background-color: #f9f9f9;
+        }
+        .competitor {
+            padding: 8px;
+            border-bottom: 1px dashed #eee;
+            font-size: 0.9rem;
+            min-height: 20px; /* 确保空行也有高度 */
+            cursor: pointer; /* 指示可点击 */
+            user-select: none; /* 防止文字选中 */
+            transition: background-color 0.2s, color 0.2s;
+        }
+        .competitor:last-child {
+            border-bottom: none;
+        }
+        .competitor:hover {
+            background-color: #e0e0e0; /* 悬停效果 */
+        }
+        .competitor.selectable {
+             background-color: #e3f2fd; /* 可选择时的背景色 */
+        }
+        .competitor.selectable:hover {
+            background-color: #bbdefb; /* 可选择时的悬停色 */
+        }
+        .bye {
+            color: #888;
+            font-style: italic;
+        }
+        .winner {
+            background-color: #c8e6c9 !important; /* 突出显示胜者 (使用 !important 覆盖悬停) */
+            font-weight: bold;
+            color: #2e7d32;
+        }
+        .loser {
+             color: #9e9e9e; /* 败者颜色变灰 */
+             font-style: italic;
+        }
+        /* --- 响应式调整 --- */
+        @media (max-width: 768px) {
+            .filter-section {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .filter-group {
+                width: 100%;
+            }
+            th, td {
+                padding: 0.5rem;
+                font-size: 0.9rem;
+            }
+            .tabs {
+                justify-content: center; /* 小屏幕居中标签 */
+            }
+            .round {
+                margin-right: 10px; /* 减小间距 */
+            }
+            .match {
+                width: 150px; /* 小屏幕减小宽度 */
+                font-size: 0.8rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>2025年第十四回全接触空手道大会（天津）</h1>
+        <p class="subtitle">运动员名单自动分类系统</p>
+    </header>
+    <div class="controls">
+        <div class="filter-section">
+            <div class="filter-group">
+                <label for="dojoFilter">道场筛选:</label>
+                <select id="dojoFilter">
+                    <option value="">所有道场</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label for="searchInput">姓名搜索:</label>
+                <input type="text" id="searchInput" placeholder="输入运动员姓名">
+            </div>
+            <button onclick="applyFilters()">应用筛选</button>
+            <button onclick="resetFilters()">重置</button>
+        </div>
+    </div>
+    <div class="tabs">
+        <div class="tab active" onclick="showTab('kumite')">组手 (Kumite)</div>
+        <div class="tab" onclick="showTab('kata')">型 (Kata)</div>
+        <!-- 新增对阵表标签 -->
+        <div class="tab" onclick="showTab('kumite-brackets')">组手对阵表</div>
+        <div class="tab" onclick="showTab('kata-brackets')">型对阵表</div>
+    </div>
+
+    <!-- 原始数据展示标签页 -->
+    <div id="kumite" class="tab-content active">
+        <div id="kumiteContent">
+            <div class="no-data">正在加载组手数据...</div>
+        </div>
+    </div>
+    <div id="kata" class="tab-content">
+        <div id="kataContent">
+            <div class="no-data">切换到型标签页查看数据</div>
+        </div>
+    </div>
+
+    <!-- 新增对阵表展示标签页 -->
+    <div id="kumite-brackets" class="tab-content">
+        <div id="kumite-brackets-content">
+            <div class="no-data">切换到组手对阵表标签页查看对阵</div>
+        </div>
+    </div>
+    <div id="kata-brackets" class="tab-content">
+        <div id="kata-brackets-content">
+            <div class="no-data">切换到型对阵表标签页查看对阵</div>
+        </div>
+    </div>
+
+    <script>
+        // 模拟从Excel文件提取的数据 (athletesData 数组保持不变)
+        const athletesData = [
+             // ... (此处应包含您提供的所有运动员数据) ...
+             // 为节省空间，此处省略，实际使用时请保留完整数据
+             { dojo: "IBKO本部道场", name: "赵轩毅", gender: "男", weight: "35.5", category: "U9男子初级组+30KG", kata: "", openWeight: "" },
+             { dojo: "IBKO本部道场", name: "居子忻", gender: "男", weight: "43", category: "U13男子高级组-45KG", kata: "", openWeight: "" },
+             { dojo: "IBKO本部道场", name: "余邗墉", gender: "男", weight: "27.5", category: "U7男子中级组 -30KG", kata: "", openWeight: "" },
+             { dojo: "IBKO本部道场", name: "季奕帆", gender: "男", weight: "24", category: "U9男子初级组+25KG", kata: "U9初级组男子个人型", openWeight: "" },
+             { dojo: "IBKO本部道场", name: "肖舒窈", gender: "女", weight: "28.2KG", category: "U9女子中级组+25KG", kata: "U9高级组女子个人型", openWeight: "2016年女子组无差" },
+             { dojo: "IBKO本部道场", name: "赵沫然", gender: "男", weight: "34.7", category: "U7男子初级组+30KG", kata: "", openWeight: "" },
+             { dojo: "IBKO本部道场", name: "陈冠宏", gender: "男", weight: "", category: "", kata: "U13男子高级组个人型", openWeight: "" },
+             { dojo: "IBKO本部道场", name: "孙奕", gender: "男", weight: "76.7", category: "U15男子中级组+70KG", kata: "", openWeight: "2012年男子组无差" },
+             { dojo: "IBKO本部道场", name: "孙亦凡", gender: "女", weight: "35.7", category: "U11女子高级组-40KG", kata: "", openWeight: "2015年女子组无差" },
+             { dojo: "IBKO本部道场", name: "顾于乔", gender: "女", weight: "45", category: "U11女子高级组+45KG", kata: "", openWeight: "" },
+             { dojo: "IBKO本部道场", name: "王梓萱", gender: "女", weight: "46KG", category: "U11女子高级组+45KG", kata: "", openWeight: "2014年女子组无差" },
+             { dojo: "IBKO本部道场", name: "顾佑芃", gender: "男", weight: "49.5", category: "U11男子中级组-50KG", kata: "", openWeight: "" },
+             { dojo: "IBKO本部道场", name: "韦奕宏", gender: "男", weight: "21KG", category: "U7男子初级组+20KG", kata: "", openWeight: "" },
+             { dojo: "IBKO本部道场", name: "周昕曈", gender: "女", weight: "30.9", category: "U9女子初级组-30KG", kata: "", openWeight: "" },
+             { dojo: "IBKO本部道场", name: "王茗皓", gender: "男", weight: "", category: "", kata: "U11中级组男子个人型", openWeight: "" },
+             { dojo: "IBKO本部道场", name: "赵彦淅", gender: "女", weight: "34", category: "U9女子中级组-35KG", kata: "", openWeight: "" },
+             { dojo: "IBKO本部道场", name: "周奕珺", gender: "女", weight: "56KG", category: "U13女子高级组+45KG", kata: "", openWeight: "2012年女子组无差" },
+             { dojo: "IBKO本部道场", name: "张蓝", gender: "男", weight: "47KG", category: "U13男子高级组+45KG", kata: "", openWeight: "" },
+             // IBKO義心蔚道场
+             { dojo: "IBKO義心蔚道场", name: "刘修识", gender: "女", weight: "37.6KG", category: "U11女子高级组-40KG", kata: "U11高级组女子个人型", openWeight: "" },
+             { dojo: "IBKO義心蔚道场", name: "刘修语", gender: "女", weight: "37.1KG", category: "", kata: "", openWeight: "2016年女子组无差" },
+             // 全极真北京元武道场
+             { dojo: "全极真北京元武道场", name: "王梓信", gender: "男", weight: "78kg", category: "U35男子中级组+75KG", kata: "", openWeight: "" },
+             { dojo: "全极真北京元武道场", name: "蒋林根", gender: "男", weight: "51kg", category: "U35男子初级组-60KG", kata: "U35中级组男子个人型", openWeight: "" },
+             { dojo: "全极真北京元武道场", name: "才瑾瑜", gender: "男", weight: "60KG", category: "U35男子高级组+60KG", kata: "", openWeight: "" },
+             { dojo: "全极真北京元武道场", name: "陈安", gender: "男", weight: "70kg", category: "U35男子中级组+70KG", kata: "U35中级组男子个人型", openWeight: "" },
+             { dojo: "全极真北京元武道场", name: "盛若航", gender: "男", weight: "54.5kg", category: "U13男子高级组+50KG", kata: "", openWeight: "" },
+             { dojo: "全极真北京元武道场", name: "王赫煊", gender: "男", weight: "20kg", category: "U9男子中级组+20KG", kata: "U9中级组男子个人型", openWeight: "" },
+             { dojo: "全极真北京元武道场", name: "劳增垚", gender: "男", weight: "22.5kg", category: "", kata: "U9中级组男子个人型", openWeight: "" },
+             { dojo: "全极真北京元武道场", name: "杨振", gender: "男", weight: "24.10kg", category: "U9男子中级组+20KG", kata: "U9中级组男子个人型", openWeight: "" },
+             { dojo: "全极真北京元武道场", name: "王颢辰", gender: "男", weight: "28kg", category: "U7男子中级组 -30KG", kata: "", openWeight: "" },
+             { dojo: "全极真北京元武道场", name: "曹天瑞", gender: "男", weight: "21.6kg", category: "U7男子初级组+20KG", kata: "U7中级组男子个人型", openWeight: "" },
+             { dojo: "全极真北京元武道场", name: "刘嘉梋", gender: "女", weight: "39KG", category: "U11女子高级组-40KG", kata: "", openWeight: "" },
+             { dojo: "全极真北京元武道场", name: "詹毅", gender: "男", weight: "31kg", category: "U11男子中级组-30KG", kata: "U11中级组男子个人型", openWeight: "" },
+             { dojo: "全极真北京元武道场", name: "边熙正", gender: "男", weight: "43kg", category: "", kata: "U11中级组男子个人型", openWeight: "" },
+             { dojo: "全极真北京元武道场", name: "焦皙雯", gender: "女", weight: "20.1kg", category: "U7女子初级组+20KG", kata: "", openWeight: "" },
+             { dojo: "全极真北京元武道场", name: "闫可欣", gender: "女", weight: "57KG", category: "U35女子初级组-60KG", kata: "", openWeight: "" },
+             { dojo: "全极真北京元武道场", name: "孙琬晶", gender: "女", weight: "61kg", category: "U35女子初级组+60KG", kata: "", openWeight: "" },
+             // IBKO天津支部
+             { dojo: "IBKO天津支部", name: "张宸宇", gender: "男", weight: "44.9", category: "U13男子高级组-45KG", kata: "U13高级组男子个人型", openWeight: "2013年男子组无差" },
+             { dojo: "IBKO天津支部", name: "东达云", gender: "男", weight: "84", category: "U13男子高级组+80KG", kata: "U13高级组男子个人型", openWeight: "2013年男子组无差" },
+             { dojo: "IBKO天津支部", name: "牛睿嘉", gender: "男", weight: "49.9", category: "U13男子高级组+45KG", kata: "U13高级组男子个人型", openWeight: "2013年男子组无差" },
+             { dojo: "IBKO天津支部", name: "刘昕益", gender: "男", weight: "31", category: "U11男子中级组-30KG", kata: "U11中级组男子个人型", openWeight: "2014年男子组无差" },
+             { dojo: "IBKO天津支部", name: "张子博", gender: "男", weight: "48", category: "U13男子高级组+45KG", kata: "", openWeight: "" },
+             { dojo: "IBKO天津支部", name: "王俊澎", gender: "男", weight: "49", category: "U11男子中级组-50KG", kata: "", openWeight: "2014年男子组无差" },
+             { dojo: "IBKO天津支部", name: "王壹", gender: "男", weight: "44", category: "U11男子中级组-45KG", kata: "", openWeight: "" },
+             { dojo: "IBKO天津支部", name: "于思源", gender: "男", weight: "28", category: "U11男子中级组-30KG", kata: "", openWeight: "2014年男子组无差" },
+             { dojo: "IBKO天津支部", name: "东芊语", gender: "女", weight: "71", category: "U13女子中级组+60KG", kata: "U13中级组女子个人型", openWeight: "2013年女子组无差" },
+             { dojo: "IBKO天津支部", name: "鲍思丞", gender: "男", weight: "33", category: "U11男子中级组+30KG", kata: "", openWeight: "" },
+             { dojo: "IBKO天津支部", name: "戴君庭", gender: "男", weight: "33", category: "U11男子中级组+30KG", kata: "", openWeight: "" },
+             { dojo: "IBKO天津支部", name: "韩言蹊", gender: "女", weight: "23", category: "U9女子中级组-25KG", kata: "U9中级组女子个人型", openWeight: "2017年女子组无差" },
+             { dojo: "IBKO天津支部", name: "尚明诚", gender: "男", weight: "31", category: "U11男子中级组-30KG", kata: "", openWeight: "" },
+             { dojo: "IBKO天津支部", name: "夏士轩", gender: "男", weight: "25", category: "U9男子中级组+25KG", kata: "", openWeight: "" },
+             { dojo: "IBKO天津支部", name: "侯佑檀", gender: "男", weight: "", category: "", kata: "U9中级组男子个人型", openWeight: "" },
+             { dojo: "IBKO天津支部", name: "金佳永", gender: "女", weight: "38", category: "U11女子中级组+30KG", kata: "U11中级组女子个人型", openWeight: "" },
+             { dojo: "IBKO天津支部", name: "关艾", gender: "女", weight: "46", category: "U11女子初级组+40KG", kata: "", openWeight: "" },
+             { dojo: "IBKO天津支部", name: "孙莫凡", gender: "女", weight: "27", category: "U9女子中级组+25KG", kata: "U9中级组女子个人型", openWeight: "" },
+             { dojo: "IBKO天津支部", name: "李梦涵", gender: "女", weight: "23.3", category: "U9女子中级组-25KG", kata: "U9中级组女子个人型", openWeight: "" },
+             { dojo: "IBKO天津支部", name: "金佳慧", gender: "女", weight: "23.2", category: "U9女子中级组-25KG", kata: "U9中级组女子个人型", openWeight: "" },
+             { dojo: "IBKO天津支部", name: "苗钰新", gender: "女", weight: "26", category: "U7女子初级组+20KG", kata: "U7中级组女子个人型", openWeight: "" },
+             { dojo: "IBKO天津支部", name: "陈禹桐", gender: "女", weight: "19.5", category: "U7女子初级组-20KG", kata: "U7中级组女子个人型", openWeight: "" },
+             { dojo: "IBKO天津支部", name: "周文", gender: "男", weight: "38", category: "U9男子初级组+35KG", kata: "U9初级组男子个人型", openWeight: "" },
+             { dojo: "IBKO天津支部", name: "马歆瑶", gender: "女", weight: "30", category: "U11女子初级组-30KG", kata: "U11初级组女子个人型", openWeight: "2015年女子组无差" },
+             { dojo: "IBKO天津支部", name: "赵子越", gender: "男", weight: "41.4", category: "U11男子初级组+40KG", kata: "U11初级组男子个人型", openWeight: "" },
+             { dojo: "IBKO天津支部", name: "李宇祜", gender: "男", weight: "25", category: "U9男子初级组+25KG", kata: "U9初级组男子个人型", openWeight: "" },
+             { dojo: "IBKO天津支部", name: "王沐涵", gender: "男", weight: "30kg", category: "U9男子初级组-30KG", kata: "", openWeight: "" },
+             { dojo: "IBKO天津支部", name: "景博涵", gender: "男", weight: "28", category: "U9男子初级组-30KG", kata: "", openWeight: "" },
+             { dojo: "IBKO天津支部", name: "董凯瑞", gender: "女", weight: "41", category: "U13女子中级组+35KG", kata: "U13初级组女子个人型", openWeight: "" },
+             { dojo: "IBKO天津支部", name: "石荔芸", gender: "女", weight: "30", category: "U9女子初级组-30KG", kata: "U9初级组女子个人型", openWeight: "2017年女子组无差" },
+             { dojo: "IBKO天津支部", name: "孙晓欢", gender: "女", weight: "55", category: "", kata: "U35高级组女子个人型", openWeight: "" },
+             { dojo: "IBKO天津支部", name: "王文斌", gender: "男", weight: "78", category: "U35男子中级组+75KG", kata: "", openWeight: "" },
+             { dojo: "IBKO天津支部", name: "马重飞", gender: "男", weight: "73", category: "U35男子中级组+70KG", kata: "", openWeight: "" },
+             { dojo: "IBKO天津支部", name: "徐子健", gender: "男", weight: "87.6", category: "U35男子中级组+75KG", kata: "", openWeight: "" },
+             { dojo: "IBKO天津支部", name: "王珺", gender: "女", weight: "", category: "", kata: "U35初级组女子个人型", openWeight: "" },
+             { dojo: "IBKO天津支部", name: "马袆萱", gender: "女", weight: "54", category: "U35女子初级组-60KG", kata: "", openWeight: "" },
+             // IBKO演武支部
+             { dojo: "IBKO演武支部", name: "张旭宸", gender: "男", weight: "74KG", category: "U35男子初级组+75KG", kata: "", openWeight: "" },
+             { dojo: "IBKO演武支部", name: "冯思卓", gender: "女", weight: "67KG", category: "U35女子初级组+60KG", kata: "", openWeight: "" },
+             { dojo: "IBKO演武支部", name: "李志昊", gender: "男", weight: "74KG", category: "U35男子中级组+75KG", kata: "", openWeight: "" },
+             { dojo: "IBKO演武支部", name: "严瑞", gender: "男", weight: "172CM/93KG", category: "U35男子初级组+90KG", kata: "", openWeight: "" },
+             { dojo: "IBKO演武支部", name: "杨润骅", gender: "女", weight: "67.8kg", category: "", kata: "U17高级组女子个人型", openWeight: "" },
+             { dojo: "IBKO演武支部", name: "戴睦恬", gender: "女", weight: "54.8kg", category: "", kata: "U17高级组女子个人型", openWeight: "" },
+             { dojo: "IBKO演武支部", name: "黄子墨", gender: "男", weight: "79.2kg", category: "", kata: "U35高级组男子个人型", openWeight: "" },
+             { dojo: "IBKO演武支部", name: "沈佳莉", gender: "女", weight: "58.9kg", category: "", kata: "U17高级组女子个人型", openWeight: "" },
+             // IBKO无雙道场
+             { dojo: "IBKO无雙道场", name: "闫李荣", gender: "男", weight: "67KG", category: "U35男子高级组+65KG", kata: "U35高级组男子个人型", openWeight: "" },
+             { dojo: "IBKO无雙道场", name: "李浩淼", gender: "女", weight: "66", category: "U35女子高级组+60KG", kata: "U35高级组女子个人型", openWeight: "" },
+             { dojo: "IBKO无雙道场", name: "付宸昊", gender: "男", weight: "65公斤", category: "U13男子中级组+65KG", kata: "", openWeight: "" },
+             // 搏忍高木道场
+             { dojo: "搏忍高木道场", name: "谈笑", gender: "男", weight: "70KG", category: "U35男子高级组-70KG", kata: "", openWeight: "" },
+             { dojo: "搏忍高木道场", name: "季一辰", gender: "男", weight: "27公斤", category: "U7男子初级组-30KG", kata: "U7初级组男子个人型", openWeight: "" },
+             { dojo: "搏忍高木道场", name: "王伯羽", gender: "男", weight: "26公斤", category: "U7男子中级组 -30KG", kata: "U7中级组男子个人型", openWeight: "" },
+             { dojo: "搏忍高木道场", name: "贾泽坤", gender: "男", weight: "29.5公斤", category: "U9男子中级组+28KG", kata: "U9中级组男子个人型", openWeight: "" },
+             { dojo: "搏忍高木道场", name: "吴仲尧", gender: "男", weight: "26公斤", category: "U7男子初级组-30KG", kata: "U7初级组男子个人型", openWeight: "" },
+             // IBKO宿州支部
+             { dojo: "IBKO宿州支部", name: "李佳赫", gender: "男", weight: "62公斤", category: "U11男子高级组+55KG", kata: "U11高级组男子个人型", openWeight: "" },
+             { dojo: "IBKO宿州支部", name: "曹御", gender: "男", weight: "73公斤", category: "U13男子高级组-80KG", kata: "U13高级组男子个人型", openWeight: "2012年男子组无差" },
+             { dojo: "IBKO宿州支部", name: "周梓涵", gender: "女", weight: "40公斤", category: "U13女子中级组+35KG", kata: "U13中级组女子个人型", openWeight: "" },
+             // 黑龙江千雅道场
+             { dojo: "黑龙江千雅道场", name: "于千雅", gender: "女", weight: "17.8公斤", category: "U7女子初级组-20KG", kata: "U7初级组女子个人型", openWeight: "2019年女子组无差" },
+             { dojo: "黑龙江千雅道场", name: "于函钰", gender: "女", weight: "43.3公斤", category: "U13女子中级组-45KG", kata: "U13中级组女子个人型", openWeight: "2012年女子组无差" },
+             { dojo: "黑龙江千雅道场", name: "董俊浩", gender: "男", weight: "74公斤", category: "U13男子中级组+65KG", kata: "U13中级组男子个人型", openWeight: "2012年男子组无差" },
+             { dojo: "黑龙江千雅道场", name: "王思雨", gender: "女", weight: "59公斤", category: "U13女子中级组-60KG", kata: "U13中级组女子个人型", openWeight: "2013年女子组无差" },
+             { dojo: "黑龙江千雅道场", name: "王思琪", gender: "女", weight: "26公斤", category: "U9女子初级组-25KG", kata: "U9初级组女子个人型", openWeight: "2017年女子组无差" },
+             { dojo: "黑龙江千雅道场", name: "高思逸", gender: "女", weight: "27.5公斤", category: "U9女子初级组-30KG", kata: "U9初级组女子个人型", openWeight: "2016年女子组无差" },
+             { dojo: "黑龙江千雅道场", name: "陈嘉垚", gender: "女", weight: "40公斤", category: "U13女子中级组+35KG", kata: "U13中级组女子个人型", openWeight: "" },
+             { dojo: "黑龙江千雅道场", name: "王子墨", gender: "女", weight: "32.5公斤", category: "U9女子初级组-30KG", kata: "U7初级组女子个人型", openWeight: "" },
+             { dojo: "黑龙江千雅道场", name: "肖雨欣", gender: "女", weight: "34公斤", category: "U9女子初级组+30KG", kata: "U9初级组女子个人型", openWeight: "" },
+             { dojo: "黑龙江千雅道场", name: "冷依诺", gender: "女", weight: "53.5公斤", category: "U15女子中级组+55KG", kata: "U15中级组女子个人型", openWeight: "" },
+             { dojo: "黑龙江千雅道场", name: "常书豪", gender: "男", weight: "21.8公斤", category: "U5男女混合-30KG", kata: "U5初级组男子个人型", openWeight: "" },
+             { dojo: "黑龙江千雅道场", name: "王一然", gender: "女", weight: "55.5公斤", category: "U13女子中级组-60KG", kata: "U13中级组女子个人型", openWeight: "2013年女子组无差" },
+             // 连云港雷道场
+             { dojo: "连云港雷道场", name: "谢雷", gender: "男", weight: "82KG", category: "U35男子高级组+85KG", kata: "U35高级组男子个人型", openWeight: "" },
+             { dojo: "连云港雷道场", name: "刘俊博", gender: "男", weight: "110KG", category: "", kata: "", openWeight: "成人男子组无差" },
+             { dojo: "连云港雷道场", name: "伏俊杰", gender: "男", weight: "65KG", category: "U35男子高级组+60KG", kata: "U35高级组男子个人型", openWeight: "" },
+             { dojo: "连云港雷道场", name: "张智卓", gender: "男", weight: "70KG", category: "", kata: "U35高级组男子个人型", openWeight: "" },
+             // IBKO四川绵阳支部
+             { dojo: "IBKO四川绵阳支部", name: "刘明忠", gender: "男", weight: "67", category: "U35男子初级组+65KG", kata: "", openWeight: "" },
+             { dojo: "IBKO四川绵阳支部", name: "张嘉仪", gender: "女", weight: "60", category: "U13女子高级组+45KG", kata: "", openWeight: "" },
+             { dojo: "IBKO四川绵阳支部", name: "李珍茜", gender: "女", weight: "61.5", category: "U15女子中级组+60KG", kata: "", openWeight: "" },
+             { dojo: "IBKO四川绵阳支部", name: "向家弘", gender: "男", weight: "66.5", category: "U35男子中级组-70KG", kata: "", openWeight: "" },
+             // 横罡垫天辰道馆
+             { dojo: "横罡垫天辰道馆", name: "朱竣溥", gender: "男", weight: "45KG", category: "U13男子中级组+45KG", kata: "", openWeight: "" },
+             { dojo: "横罡垫天辰道馆", name: "王林承海", gender: "男", weight: "28KG", category: "U9男子中级组+28KG", kata: "", openWeight: "" },
+             { dojo: "横罡垫天辰道馆", name: "韩欣然", gender: "女", weight: "30KG", category: "U9女子中级组+25KG", kata: "", openWeight: "" },
+             { dojo: "横罡垫天辰道馆", name: "陈渺", gender: "女", weight: "60KG", category: "", kata: "", openWeight: "2014年女子组无差" },
+             { dojo: "横罡垫天辰道馆", name: "乔皓喆", gender: "男", weight: "48.5KG", category: "U11男子中级组-50KG", kata: "", openWeight: "" },
+             { dojo: "横罡垫天辰道馆", name: "席浩喆", gender: "男", weight: "88KG", category: "U13男子高级组+80KG", kata: "", openWeight: "" },
+             { dojo: "横罡垫天辰道馆", name: "赵逸欣", gender: "女", weight: "46KG", category: "U11女子高级组+45KG", kata: "", openWeight: "" },
+             { dojo: "横罡垫天辰道馆", name: "胡轩晨", gender: "男", weight: "25.6KG", category: "U9男子中级组+25KG", kata: "", openWeight: "" },
+             { dojo: "横罡垫天辰道馆", name: "马翊恺", gender: "男", weight: "25.5KG", category: "U9男子中级组+25KG", kata: "", openWeight: "" },
+             { dojo: "横罡垫天辰道馆", name: "奥尼斯泰韩", gender: "男", weight: "78KG", category: "U13男子高级组-80KG", kata: "", openWeight: "" },
+             { dojo: "横罡垫天辰道馆", name: "王文康", gender: "男", weight: "30KG", category: "U11男子高级组-35KG", kata: "", openWeight: "" },
+             { dojo: "横罡垫天辰道馆", name: "孟宜彤", gender: "女", weight: "37KG", category: "U11女子高级组-40KG", kata: "", openWeight: "" },
+             // 四川慧心馆
+             { dojo: "四川慧心馆", name: "石子昂", gender: "男", weight: "67KG", category: "U35男子高级组-70KG", kata: "", openWeight: "" },
+             { dojo: "四川慧心馆", name: "胡旅", gender: "男", weight: "75", category: "U35男子中级组+75KG", kata: "", openWeight: "" },
+             { dojo: "四川慧心馆", name: "张丽颖", gender: "女", weight: "46.8", category: "U35女子初级组-60KG", kata: "", openWeight: "" },
+             { dojo: "四川慧心馆", name: "候金", gender: "女", weight: "56.5", category: "U35女子初级组-60KG", kata: "", openWeight: "" },
+             { dojo: "四川慧心馆", name: "王若愚", gender: "男", weight: "28", category: "U9男子中级组+28KG", kata: "", openWeight: "" },
+             { dojo: "四川慧心馆", name: "杨皓麟", gender: "女", weight: "20", category: "U7女子初级组+20KG", kata: "", openWeight: "" },
+             { dojo: "四川慧心馆", name: "杨赜戟", gender: "男", weight: "17", category: "U5男女混合-20KG", kata: "", openWeight: "" },
+             { dojo: "四川慧心馆", name: "周子然", gender: "女", weight: "23.65", category: "U9女子中级组-25KG", kata: "", openWeight: "" },
+             { dojo: "四川慧心馆", name: "代可名", gender: "男", weight: "35.5", category: "U7男子初级组+30KG", kata: "", openWeight: "" },
+             { dojo: "四川慧心馆", name: "曾诗景", gender: "女", weight: "16.3", category: "U5男女混合-20KG", kata: "", openWeight: "" },
+             { dojo: "四川慧心馆", name: "张浩林", gender: "男", weight: "26.5", category: "U9男子高级组-30KG", kata: "", openWeight: "" },
+             { dojo: "四川慧心馆", name: "贾恒怡", gender: "女", weight: "59.5", category: "U15女子中级组-60KG", kata: "", openWeight: "" },
+             { dojo: "四川慧心馆", name: "王子木", gender: "男", weight: "42.5", category: "U9男子初级组+35KG", kata: "", openWeight: "" },
+             { dojo: "四川慧心馆", name: "成林朗", gender: "男", weight: "28.5", category: "U9男子初级组-30KG", kata: "", openWeight: "" },
+             // WORLD极真中国总本部
+             { dojo: "WORLD极真中国总本部", name: "赵哲志", gender: "男", weight: "66.7KG", category: "U35男子高级组+65KG", kata: "U35高级组男子个人型", openWeight: "成人男子组无差" },
+             // IBKO广州凤凰道场
+             { dojo: "IBKO广州凤凰道场", name: "储祥宇", gender: "男", weight: "67KG", category: "U35男子高级组-70KG", kata: "", openWeight: "" },
+             { dojo: "IBKO广州凤凰道场", name: "郑晨熙", gender: "女", weight: "69KG", category: "U15女子中级组+60KG", kata: "U15女子初级组个人型", openWeight: "" },
+             { dojo: "IBKO广州凤凰道场", name: "吴廷屿", gender: "男", weight: "22KG", category: "U9男子初级组-20KG", kata: "U9初级组男子个人型", openWeight: "" },
+             { dojo: "IBKO广州凤凰道场", name: "陸偉豪", gender: "男", weight: "59KG", category: "U35男子高级组+55KG", kata: "", openWeight: "" },
+             { dojo: "IBKO广州凤凰道场", name: "徐钰涵", gender: "女", weight: "52KG", category: "U13女子初级组+50KG", kata: "U13初级组女子个人型", openWeight: "" },
+             { dojo: "IBKO广州凤凰道场", name: "梁家豪", gender: "男", weight: "62kg", category: "U35男子高级组+60KG", kata: "", openWeight: "" },
+             // IBKO郑州修心道场
+             { dojo: "IBKO郑州修心道场", name: "毛子楷", gender: "男", weight: "40公斤", category: "U13男子中级组-40KG", kata: "U13高级组男子个人型", openWeight: "2013年男子组无差" },
+             { dojo: "IBKO郑州修心道场", name: "魏志浩", gender: "男", weight: "34.8公斤", category: "U11男子高级组-35KG", kata: "U11高级组男子个人型", openWeight: "2014年男子组无差" },
+             { dojo: "IBKO郑州修心道场", name: "王迦冉", gender: "男", weight: "53公斤", category: "U11男子中级组+50KG", kata: "U11中级组男子个人型", openWeight: "" },
+             { dojo: "IBKO郑州修心道场", name: "田梓礽", gender: "男", weight: "28.35公斤", category: "U9男子中级组+28KG", kata: "U9中级组男子个人型", openWeight: "2016年男子组无差" },
+             { dojo: "IBKO郑州修心道场", name: "战学勤", gender: "男", weight: "22.85公斤", category: "U9男子中级组+20KG", kata: "U9中级组男子个人型", openWeight: "" },
+             { dojo: "IBKO郑州修心道场", name: "虎文笛", gender: "女", weight: "55公斤", category: "U13女子中级组-60KG", kata: "U13中级组女子个人型", openWeight: "2013年女子组无差" },
+             { dojo: "IBKO郑州修心道场", name: "魏志然", gender: "女", weight: "34.8公斤", category: "U9女子中级组-35KG", kata: "U9中级组女子个人型", openWeight: "2016年女子组无差" },
+             { dojo: "IBKO郑州修心道场", name: "陈俊伊", gender: "女", weight: "27.8公斤", category: "U9女子中级组+25KG", kata: "U9中级组女子个人型", openWeight: "2016年女子组无差" },
+             // world极真大连
+             { dojo: "world极真大连", name: "郝晓淼", gender: "女", weight: "53kg", category: "", kata: "U35高级组女子个人型", openWeight: "" },
+             { dojo: "world极真大连", name: "马铭泽", gender: "男", weight: "38kg", category: "U11男子中级组-40KG", kata: "", openWeight: "" },
+             { dojo: "world极真大连", name: "张瑞麟", gender: "男", weight: "29KG", category: "U9男子高级组-30KG", kata: "", openWeight: "" },
+             { dojo: "world极真大连", name: "张瑞嘉", gender: "女", weight: "53KG", category: "U11女子高级组+45KG", kata: "", openWeight: "" },
+             { dojo: "world极真大连", name: "马传琦", gender: "男", weight: "125KG", category: "", kata: "U35中级组男子个人型", openWeight: "成人男子组无差" },
+             { dojo: "world极真大连", name: "尹宇昕", gender: "男", weight: "145KG", category: "", kata: "", openWeight: "成人男子组无差" },
+             // IBKO郑州大武道场
+             { dojo: "IBKO郑州大武道场", name: "冯嘉乐", gender: "男", weight: "24KG", category: "U9男子中级组+20KG", kata: "U9中级组男子个人型", openWeight: "" },
+             { dojo: "IBKO郑州大武道场", name: "姬佳佑", gender: "男", weight: "29KG", category: "U9男子中级组+28KG", kata: "", openWeight: "" },
+             { dojo: "IBKO郑州大武道场", name: "席紫夏", gender: "女", weight: "60KG", category: "U15女子高级组+50KG", kata: "", openWeight: "" },
+             // IBKO郑州翊道场
+             { dojo: "IBKO郑州翊道场", name: "耿嘉茉", gender: "女", weight: "17.8", category: "U7女子初级组-20KG", kata: "", openWeight: "2019年女子组无差" },
+             { dojo: "IBKO郑州翊道场", name: "Lydia xinch", gender: "女", weight: "19.3", category: "U7女子初级组-20KG", kata: "U7初级组女子个人型", openWeight: "2017年女子组无差" },
+             { dojo: "IBKO郑州翊道场", name: "杨牧源", gender: "男", weight: "56.8", category: "U9男子高级组+40KG", kata: "U9高级组男子个人型", openWeight: "2016年男子组无差" },
+             { dojo: "IBKO郑州翊道场", name: "欧焱廷", gender: "男", weight: "46.5", category: "U9男子高级组+40KG", kata: "U9高级组男子个人型", openWeight: "" },
+             { dojo: "IBKO郑州翊道场", name: "张熙岩", gender: "男", weight: "49.5", category: "U13男子中级组+45KG", kata: "U13中级组男子个人型", openWeight: "" },
+             { dojo: "IBKO郑州翊道场", name: "张熙峦", gender: "男", weight: "63", category: "U13男子中级组+45KG", kata: "U13中级组男子个人型", openWeight: "" },
+             { dojo: "IBKO郑州翊道场", name: "胡启航", gender: "男", weight: "23.7", category: "U9男子中级组+20KG", kata: "U9中级组男子个人型", openWeight: "" },
+             { dojo: "IBKO郑州翊道场", name: "牧嘉佑", gender: "男", weight: "37.5KG", category: "U11男子中级组+35KG", kata: "U11中级组男子个人型", openWeight: "2014年男子组无差" },
+             { dojo: "IBKO郑州翊道场", name: "郑卓然", gender: "男", weight: "24", category: "U9男子中级组+20KG", kata: "U9中级组男子个人型", openWeight: "" },
+             { dojo: "IBKO郑州翊道场", name: "付家丞", gender: "男", weight: "59.5", category: "U11男子中级组+50KG", kata: "", openWeight: "" },
+             { dojo: "IBKO郑州翊道场", name: "付婉彤", gender: "女", weight: "60", category: "U15女子中级组-60KG", kata: "", openWeight: "" },
+             // 少林拳法会馆北京支部
+             { dojo: "少林拳法会馆北京支部", name: "王鹤淇", gender: "男", weight: "66KG", category: "U35男子中级组-70KG", kata: "", openWeight: "" },
+             { dojo: "少林拳法会馆北京支部", name: "李先明", gender: "男", weight: "108KG", category: "U35男子初级组+90KG", kata: "", openWeight: "" },
+             { dojo: "少林拳法会馆北京支部", name: "胡啸阳", gender: "男", weight: "80KG", category: "U35男子初级组+75KG", kata: "", openWeight: "" },
+             // IBKO汉中支部
+             { dojo: "IBKO汉中支部", name: "吴震新", gender: "男", weight: "83kg", category: "U35男子初级组+75KG", kata: "", openWeight: "成人男子组无差" },
+             { dojo: "IBKO汉中支部", name: "岳阳", gender: "男", weight: "62.3KG", category: "U35男子初级组-60KG", kata: "", openWeight: "" },
+             { dojo: "IBKO汉中支部", name: "王晨晖", gender: "女", weight: "64kg", category: "U35女子初级组+60KG", kata: "", openWeight: "" },
+             { dojo: "IBKO汉中支部", name: "李宸毓", gender: "男", weight: "56kg", category: "U11男子高级组+55KG", kata: "", openWeight: "2014年男子组无差" },
+             { dojo: "IBKO汉中支部", name: "徐馨睿", gender: "女", weight: "52kg", category: "U15女子高级组+50KG", kata: "", openWeight: "" },
+             { dojo: "IBKO汉中支部", name: "吕雨轩", gender: "男", weight: "31.3kg", category: "U13男子中级组-40KG", kata: "", openWeight: "" },
+             { dojo: "IBKO汉中支部", name: "刘龚宸", gender: "男", weight: "32.7kg", category: "U9男子中级组+28KG", kata: "", openWeight: "" },
+             { dojo: "IBKO汉中支部", name: "姚宇泽", gender: "男", weight: "47kg", category: "U13男子中级组+45KG", kata: "", openWeight: "" },
+             // IBKO徐州支部
+             { dojo: "IBKO徐州支部", name: "刘辉", gender: "男", weight: "77KG", category: "U35男子高级组+75KG", kata: "", openWeight: "成人男子组无差" },
+             { dojo: "IBKO徐州支部", name: "赵梓硕", gender: "男", weight: "48KG", category: "U13男子中级组+45KG", kata: "U13中级组男子个人型", openWeight: "" },
+             { dojo: "IBKO徐州支部", name: "李浩然", gender: "男", weight: "43KG", category: "U11男子中级组-45KG", kata: "", openWeight: "" },
+             { dojo: "IBKO徐州支部", name: "胡峻赫", gender: "男", weight: "48KG", category: "U13男子中级组+45KG", kata: "", openWeight: "" },
+             { dojo: "IBKO徐州支部", name: "王子峻", gender: "男", weight: "28KG", category: "U9男子初级组-30KG", kata: "U9初级组男子个人型", openWeight: "" },
+             { dojo: "IBKO徐州支部", name: "李岩", gender: "男", weight: "65KG", category: "U35男子初级组+65KG", kata: "", openWeight: "" },
+             // IBKO扬州支部
+             { dojo: "IBKO扬州支部", name: "杨康", gender: "男", weight: "66KG", category: "U35男子高级组+65KG", kata: "U35高级组男子个人型", openWeight: "" },
+             // 长沙易道场
+             { dojo: "长沙易道场", name: "易高至", gender: "男", weight: "58KG", category: "U35男子高级组+55KG", kata: "", openWeight: "" },
+             // 新极真会小一道场
+             { dojo: "新极真会小一道场", name: "李浩铭", gender: "男", weight: "24KG", category: "U9男子中级组+20KG", kata: "", openWeight: "" },
+             { dojo: "新极真会小一道场", name: "赵丰收", gender: "男", weight: "47kg", category: "U13男子中级组+45KG", kata: "", openWeight: "" },
+             { dojo: "新极真会小一道场", name: "赵丰润", gender: "男", weight: "60KG", category: "U35男子中级组-70KG", kata: "", openWeight: "" },
+             { dojo: "新极真会小一道场", name: "王禹为", gender: "男", weight: "17.5KG", category: "U5男女混合-20KG", kata: "", openWeight: "" },
+             { dojo: "新极真会小一道场", name: "李正辰", gender: "男", weight: "24KG", category: "U9男子中级组+20KG", kata: "U9中级组男子个人型", openWeight: "" },
+             { dojo: "新极真会小一道场", name: "元子擎", gender: "男", weight: "41KG", category: "U11男子初级组-45KG", kata: "", openWeight: "" },
+             { dojo: "新极真会小一道场", name: "叶正熙", gender: "男", weight: "54KG", category: "U15男子高级组+55KG", kata: "", openWeight: "" },
+             { dojo: "新极真会小一道场", name: "李梓瑜", gender: "男", weight: "27.5KG", category: "U9男子初级组-30KG", kata: "", openWeight: "" },
+             { dojo: "新极真会小一道场", name: "余伽罗", gender: "女", weight: "44.4KG", category: "U13女子高级组+45KG", kata: "U13高级组女子个人型", openWeight: "2013年女子组无差" },
+             { dojo: "新极真会小一道场", name: "王伽一", gender: "女", weight: "23KG", category: "U9女子中级组-25KG", kata: "U9中级组女子个人型", openWeight: "2016年女子组无差" },
+             { dojo: "新极真会小一道场", name: "黄鑫辰", gender: "男", weight: "69KG", category: "U13男子中级组+65KG", kata: "", openWeight: "" },
+             { dojo: "新极真会小一道场", name: "王瑞祎", gender: "男", weight: "34KG", category: "U11男子高级组-35KG", kata: "", openWeight: "" },
+             { dojo: "新极真会小一道场", name: "安沐言", gender: "男", weight: "25.5KG", category: "U9男子中级组+25KG", kata: "", openWeight: "" },
+             { dojo: "新极真会小一道场", name: "黄贤禛", gender: "男", weight: "25KG", category: "U9男子中级组+25KG", kata: "", openWeight: "" },
+             { dojo: "新极真会小一道场", name: "朱陌菡", gender: "女", weight: "37KG", category: "U11女子高级组-40KG", kata: "", openWeight: "2015年女子组无差" },
+             { dojo: "新极真会小一道场", name: "王喆", gender: "男", weight: "89KG", category: "U35男子高级组+85KG", kata: "", openWeight: "" },
+             { dojo: "新极真会小一道场", name: "陈裕柔", gender: "女", weight: "48KG", category: "U11女子高级组+45KG", kata: "U11高级组女子个人型", openWeight: "2014年女子组无差" },
+             { dojo: "新极真会小一道场", name: "宋岱宣", gender: "男", weight: "44.5KG", category: "U13男子高级组-45KG", kata: "", openWeight: "" },
+             { dojo: "新极真会小一道场", name: "于子宵", gender: "男", weight: "49KG", category: "U13男子高级组+50KG", kata: "", openWeight: "2013年男子组无差" },
+             { dojo: "新极真会小一道场", name: "顾宸溪", gender: "女", weight: "44.8KG", category: "U13女子高级组+45KG", kata: "", openWeight: "" },
+             { dojo: "新极真会小一道场", name: "杨涵斯", gender: "男", weight: "36KG", category: "", kata: "U13高级组男子个人型", openWeight: "" },
+             { dojo: "新极真会小一道场", name: "赵子瑞", gender: "男", weight: "89KG", category: "U35男子高级组-90KG", kata: "", openWeight: "成人男子组无差" },
+             { dojo: "新极真会小一道场", name: "陈一凡", gender: "男", weight: "62KG", category: "U35男子高级组+60KG", kata: "", openWeight: "" },
+             { dojo: "新极真会小一道场", name: "黄贤祎", gender: "男", weight: "55KG", category: "U35男子高级组+55KG", kata: "", openWeight: "" },
+             { dojo: "新极真会小一道场", name: "武清轩", gender: "男", weight: "101KG", category: "U35男子高级组+90KG", kata: "", openWeight: "成人男子组无差" },
+             // 真武道场
+             { dojo: "真武道场", name: "郝彦翔", gender: "男", weight: "70", category: "U13男子高级组-80KG", kata: "", openWeight: "" },
+             { dojo: "真武道场", name: "杨禹涵", gender: "女", weight: "39.7", category: "U11女子初级组+40KG", kata: "", openWeight: "" },
+             { dojo: "真武道场", name: "张铭轩", gender: "男", weight: "96", category: "U15男子中级组+70KG", kata: "", openWeight: "" },
+             { dojo: "真武道场", name: "冯柏淮", gender: "男", weight: "78", category: "U15男子初级组+60KG", kata: "", openWeight: "" },
+             { dojo: "真武道场", name: "孙沐晨", gender: "男", weight: "33", category: "U9男子初级组+25KG", kata: "", openWeight: "" },
+             { dojo: "真武道场", name: "华作思琪", gender: "女", weight: "37", category: "U11女子中级组+35KG", kata: "", openWeight: "" },
+             { dojo: "真武道场", name: "牛承尚", gender: "男", weight: "42.5", category: "U11 男子中级组-45KG", kata: "", openWeight: "" },
+             { dojo: "真武道场", name: "牛彬銓", gender: "男", weight: "31", category: "U13男子中级组+30KG", kata: "", openWeight: "" },
+             { dojo: "真武道场", name: "牛成庆", gender: "男", weight: "28.5", category: "U9男子初级组-30KG", kata: "", openWeight: "" },
+             { dojo: "真武道场", name: "高善美", gender: "女", weight: "63", category: "U13女子初级组+50KG", kata: "", openWeight: "" },
+             { dojo: "真武道场", name: "高驰", gender: "男", weight: "73", category: "U15男子中级组+70KG", kata: "", openWeight: "" },
+             { dojo: "真武道场", name: "李明轩", gender: "男", weight: "54", category: "U11男子中级组+50KG", kata: "", openWeight: "" },
+             { dojo: "真武道场", name: "杨雨辰", gender: "男", weight: "55", category: "U9男子初级组+35KG", kata: "", openWeight: "" },
+             { dojo: "真武道场", name: "刘宇航", gender: "男", weight: "52", category: "U11男子中级组-50KG", kata: "", openWeight: "" },
+             { dojo: "真武道场", name: "孙世轩", gender: "男", weight: "44.5", category: "U11男子初级组-45KG", kata: "", openWeight: "" },
+             { dojo: "真武道场", name: "马亮", gender: "男", weight: "65", category: "U15男子初级组+60KG", kata: "", openWeight: "" },
+             { dojo: "真武道场", name: "郭庆宸", gender: "男", weight: "33.4", category: "U9男子中级组+35KG", kata: "", openWeight: "" },
+             { dojo: "真武道场", name: "马旭然", gender: "男", weight: "25", category: "U9男子中级组+20KG", kata: "", openWeight: "" },
+             { dojo: "真武道场", name: "吕星烁", gender: "男", weight: "74", category: "U15男子高级组-80KG", kata: "", openWeight: "" },
+             { dojo: "真武道场", name: "吕天硕", gender: "男", weight: "25.5", category: "U9男子中级组+25KG", kata: "", openWeight: "" },
+             { dojo: "真武道场", name: "王茜", gender: "女", weight: "36.2", category: "U9女子中级组-35KG", kata: "", openWeight: "" },
+             { dojo: "真武道场", name: "郭春博", gender: "男", weight: "28.9", category: "U9男子初级组+25KG", kata: "", openWeight: "" },
+             { dojo: "真武道场", name: "阎芃烨", gender: "男", weight: "40", category: "U11男子中级组-40KG", kata: "", openWeight: "" },
+             { dojo: "真武道场", name: "杨彩希", gender: "女", weight: "30", category: "U11女子中级组+30KG", kata: "", openWeight: "" },
+             { dojo: "真武道场", name: "杨祎峻", gender: "男", weight: "37.5", category: "U9男子初级组+35KG", kata: "", openWeight: "" },
+             { dojo: "真武道场", name: "赵连鑫", gender: "女", weight: "50", category: "U11女子中级组+35KG", kata: "", openWeight: "" },
+             { dojo: "真武道场", name: "高富铭", gender: "男", weight: "60", category: "U13男子初级组", kata: "", openWeight: "" },
+             { dojo: "真武道场", name: "张皓翔", gender: "男", weight: "38.4", category: "U13男子中级组+30KG", kata: "", openWeight: "" },
+             { dojo: "真武道场", name: "齐悦含", gender: "女", weight: "60.7", category: "U35女子高级组+60KG", kata: "", openWeight: "" },
+             { dojo: "真武道场", name: "考佳琪", gender: "女", weight: "46.3", category: "U13女子中级组-45KG", kata: "", openWeight: "" },
+             { dojo: "真武道场", name: "李博诚", gender: "男", weight: "29", category: "U9男子初级组-30KG", kata: "", openWeight: "" },
+             { dojo: "真武道场", name: "李博羽", gender: "男", weight: "79.5", category: "U15男子高级组-80KG", kata: "", openWeight: "" },
+             { dojo: "真武道场", name: "靳宏博", gender: "男", weight: "58", category: "U11男子中级组+50KG", kata: "", openWeight: "" },
+             { dojo: "真武道场", name: "何欣洋", gender: "男", weight: "50", category: "U11男子中级组-50KG", kata: "", openWeight: "" },
+             { dojo: "真武道场", name: "康子辉", gender: "男", weight: "29.5", category: "U9男子中级组+28KG", kata: "", openWeight: "" },
+             { dojo: "真武道场", name: "牛承恺", gender: "男", weight: "25.4", category: "U7男子初级组+20KG", kata: "", openWeight: "" },
+             { dojo: "真武道场", name: "李如东", gender: "女", weight: "64", category: "U13女子中级组+60KG", kata: "", openWeight: "" },
+             { dojo: "真武道场", name: "吕强", gender: "男", weight: "63", category: "U15男子初级组+60KG", kata: "", openWeight: "" },
+             { dojo: "真武道场", name: "樊金晖", gender: "男", weight: "36.5", category: "U11男子中级组+35KG", kata: "", openWeight: "" },
+             { dojo: "真武道场", name: "张峰瑞", gender: "男", weight: "38.5", category: "U9男子中级组+35KG", kata: "", openWeight: "" },
+             { dojo: "真武道场", name: "高畅", gender: "男", weight: "57", category: "U11男子中级组+50KG", kata: "", openWeight: "" },
+             { dojo: "真武道场", name: "张珺荞", gender: "女", weight: "34.3", category: "U13女子中级组+35KG", kata: "", openWeight: "" },
+             { dojo: "真武道场", name: "张吉哲", gender: "男", weight: "42", category: "U7男子初级组+30KG", kata: "", openWeight: "" },
+             { dojo: "真武道场", name: "李九霄", gender: "男", weight: "34.8", category: "U13男子中级组+30KG", kata: "", openWeight: "" },
+             { dojo: "真武道场", name: "张振泓", gender: "男", weight: "32", category: "U9男子中级组+28KG", kata: "", openWeight: "" },
+             { dojo: "真武道场", name: "牛鹏越", gender: "男", weight: "24.5", category: "U9男子初级组+25KG", kata: "", openWeight: "" },
+             { dojo: "真武道场", name: "包阔", gender: "男", weight: "39", category: "U9男子中级组+35KG", kata: "", openWeight: "" },
+             { dojo: "真武道场", name: "高琦凯", gender: "男", weight: "84KG", category: "U35男子高级组-90KG", kata: "", openWeight: "" },
+             { dojo: "真武道场", name: "王美钰", gender: "女", weight: "42", category: "U11女子中级组+40KG", kata: "", openWeight: "" },
+             { dojo: "真武道场", name: "田嘉轩", gender: "男", weight: "60.2", category: "U15男子高级组+55KG", kata: "", openWeight: "" },
+             { dojo: "真武道场", name: "田雅宁", gender: "女", weight: "45", category: "U11女子中级组+40KG", kata: "", openWeight: "" },
+             { dojo: "真武道场", name: "韩孟姿", gender: "女", weight: "54", category: "U15女子中级组+55KG", kata: "", openWeight: "" },
+             { dojo: "真武道场", name: "张庭维", gender: "男", weight: "18", category: "U9男子初级组-20KG", kata: "", openWeight: "" },
+             { dojo: "真武道场", name: "张诣晗", gender: "女", weight: "23", category: "U11女子初级组-30KG", kata: "", openWeight: "" },
+             { dojo: "真武道场", name: "魏永喆", gender: "男", weight: "42", category: "U13男子初级组", kata: "", openWeight: "" },
+             { dojo: "真武道场", name: "李永霖", gender: "男", weight: "51", category: "U13男子初级组", kata: "", openWeight: "" },
+             { dojo: "真武道场", name: "赵锦瑞", gender: "男", weight: "24.9", category: "U7男子中级组 -30KG", kata: "", openWeight: "" },
+             { dojo: "真武道场", name: "徐采薇", gender: "女", weight: "24.5", category: "U7女子初级组+20KG", kata: "", openWeight: "" },
+             { dojo: "真武道场", name: "林子贺", gender: "男", weight: "35", category: "U9男子初级组+30KG", kata: "", openWeight: "" },
+             { dojo: "真武道场", name: "王姿涵", gender: "女", weight: "35", category: "U9女子中级组-35KG", kata: "", openWeight: "" },
+             { dojo: "真武道场", name: "李紫微", gender: "女", weight: "52.8", category: "U15女子中级组+55KG", kata: "", openWeight: "" },
+             { dojo: "真武道场", name: "金枫", gender: "男", weight: "45", category: "U13男子高级组-45KG", kata: "", openWeight: "" },
+             { dojo: "真武道场", name: "宋骐翔", gender: "男", weight: "62", category: "U13男子初级组", kata: "", openWeight: "" },
+             { dojo: "真武道场", name: "孟庆宇", gender: "男", weight: "19.5", category: "U9男子初级组-20KG", kata: "", openWeight: "" },
+             { dojo: "真武道场", name: "金熙雅", gender: "女", weight: "20", category: "U7女子初级组+20KG", kata: "", openWeight: "" },
+             { dojo: "真武道场", name: "朱明瑞", gender: "男", weight: "36.7", category: "U9男子中级组+35KG", kata: "", openWeight: "" },
+             { dojo: "真武道场", name: "边思文", gender: "女", weight: "23公斤", category: "U9女子初级组-25KG", kata: "U9初级组女子个人型", openWeight: "" },
+             { dojo: "真武道场", name: "成柏霖", gender: "男", weight: "50公斤", category: "U11男子中级组-50KG", kata: "", openWeight: "" },
+             { dojo: "真武道场", name: "秦大伟", gender: "男", weight: "90KG", category: "U35男子高级组+90KG", kata: "", openWeight: "成人男子组无差" },
+             { dojo: "真武道场", name: "刘宸旭", gender: "男", weight: "75KG", category: "U35男子高级组+75KG", kata: "", openWeight: "" },
+             { dojo: "真武道场", name: "刘宸赫", gender: "男", weight: "45kg", category: "U11 男子中级组-45KG", kata: "U11中级组男子个人型", openWeight: "" },
+             { dojo: "真武道场", name: "周佳俊", gender: "男", weight: "45kg", category: "U13男子中级组+45KG", kata: "U13中级组男子个人型", openWeight: "" },
+             { dojo: "真武道场", name: "聂辰伊", gender: "女", weight: "28.5kg", category: "U9女子中级组+25KG", kata: "U9中级组女子个人型", openWeight: "" },
+             { dojo: "真武道场", name: "庞名远", gender: "男", weight: "38KG", category: "U11男子初级组+40KG", kata: "U11初级组男子个人型", openWeight: "" },
+             { dojo: "真武道场", name: "董逸晨", gender: "男", weight: "20.5kg", category: "U7男子初级组+20KG", kata: "U7初级组男子个人型", openWeight: "" },
+             { dojo: "真武道场", name: "孟梓垚", gender: "男", weight: "18.4kg", category: "U5男女混合-20KG", kata: "U5初级组男子个人型", openWeight: "" },
+             { dojo: "真武道场", name: "张熙裕", gender: "男", weight: "20.5kg", category: "U5男女混合-30KG", kata: "U5初级组男子个人型", openWeight: "" },
+             { dojo: "真武道场", name: "秦悦然", gender: "女", weight: "18.3kg", category: "U7女子初级组-20KG", kata: "U7初级组女子个人型", openWeight: "" }
+        ];
+
+        // --- 新增：对阵表状态管理 ---
+        let bracketState = {}; // { "categoryName": { "matchId": { winner: {...}, loser: {...} } } }
+
+        // 初始化道场筛选下拉框
+        function initDojoFilter() {
+            const dojoSet = new Set();
+            athletesData.forEach(athlete => {
+                if (athlete.dojo) {
+                    dojoSet.add(athlete.dojo);
+                }
+            });
+            const dojoFilter = document.getElementById('dojoFilter');
+            Array.from(dojoSet).sort().forEach(dojo => {
+                const option = document.createElement('option');
+                option.value = dojo;
+                option.textContent = dojo;
+                dojoFilter.appendChild(option);
+            });
+        }
+
+        // 分类数据 (原始功能)
+        function categorizeData(data) {
+            const kumite = [];
+            const kata = [];
+            data.forEach(athlete => {
+                if (athlete.category) {
+                    kumite.push(athlete);
+                }
+                if (athlete.kata || athlete.openWeight) {
+                    kata.push(athlete);
+                }
+            });
+            return { kumite, kata };
+        }
+
+        // 渲染组手表格 (原始功能)
+        function renderKumiteTable(data) {
+            const container = document.getElementById('kumiteContent');
+            if (data.length === 0) {
+                container.innerHTML = '<div class="no-data">没有找到符合条件的组手运动员</div>';
+                return;
+            }
+            const dojoGroups = {};
+            data.forEach(athlete => {
+                if (!dojoGroups[athlete.dojo]) {
+                    dojoGroups[athlete.dojo] = [];
+                }
+                dojoGroups[athlete.dojo].push(athlete);
+            });
+            let html = '';
+            Object.keys(dojoGroups).sort().forEach(dojo => {
+                html += `<div class="category-header">${dojo}</div>`;
+                html += `
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>姓名</th>
+                                <th>性别</th>
+                                <th>体重</th>
+                                <th>组别</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                `;
+                dojoGroups[dojo].forEach(athlete => {
+                    html += `
+                        <tr>
+                            <td>${athlete.name}</td>
+                            <td>${athlete.gender}</td>
+                            <td>${athlete.weight}</td>
+                            <td>${athlete.category}</td>
+                        </tr>
+                    `;
+                });
+                html += `
+                        </tbody>
+                    </table>
+                `;
+            });
+            container.innerHTML = html;
+        }
+
+        // 渲染型表格 (原始功能)
+        function renderKataTable(data) {
+            const container = document.getElementById('kataContent');
+            if (data.length === 0) {
+                container.innerHTML = '<div class="no-data">没有找到符合条件的型运动员</div>';
+                return;
+            }
+            const dojoGroups = {};
+            data.forEach(athlete => {
+                if (!dojoGroups[athlete.dojo]) {
+                    dojoGroups[athlete.dojo] = [];
+                }
+                dojoGroups[athlete.dojo].push(athlete);
+            });
+            let html = '';
+            Object.keys(dojoGroups).sort().forEach(dojo => {
+                html += `<div class="category-header">${dojo}</div>`;
+                html += `
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>姓名</th>
+                                <th>性别</th>
+                                <th>体重</th>
+                                <th>型</th>
+                                <th>无差</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                `;
+                dojoGroups[dojo].forEach(athlete => {
+                    html += `
+                        <tr>
+                            <td>${athlete.name}</td>
+                            <td>${athlete.gender}</td>
+                            <td>${athlete.weight}</td>
+                            <td>${athlete.kata || '-'}</td>
+                            <td>${athlete.openWeight || '-'}</td>
+                        </tr>
+                    `;
+                });
+                html += `
+                        </tbody>
+                    </table>
+                `;
+            });
+            container.innerHTML = html;
+        }
+
+        // --- 新增功能：对阵表生成 ---
+
+        // 1. 按组手和型规则分类数据
+        function categorizeForTournaments(data) {
+            const kumiteCategories = {};
+            const kataCategories = {};
+
+            data.forEach(athlete => {
+                if (athlete.category) {
+                    if (!kumiteCategories[athlete.category]) {
+                        kumiteCategories[athlete.category] = [];
+                    }
+                    kumiteCategories[athlete.category].push({...athlete});
+                }
+
+                const kataCategory = athlete.kata || athlete.openWeight;
+                if (kataCategory) {
+                    if (!kataCategories[kataCategory]) {
+                        kataCategories[kataCategory] = [];
+                    }
+                    kataCategories[kataCategory].push({...athlete});
+                }
+            });
+
+            return { kumiteCategories, kataCategories };
+        }
+
+        // 2. 优先匹配不同道场的对手
+        function prioritizeMatching(athletesArray) {
+            if (athletesArray.length <= 1) return [...athletesArray];
+
+            // 按道场分组
+            const dojoGroups = {};
+            athletesArray.forEach(a => {
+                if (!dojoGroups[a.dojo]) dojoGroups[a.dojo] = [];
+                dojoGroups[a.dojo].push(a);
+            });
+
+            const prioritized = [];
+            const used = new Set();
+
+            // 尝试交错选取不同道场的选手
+            let maxGroupSize = 0;
+            Object.values(dojoGroups).forEach(group => {
+                if (group.length > maxGroupSize) maxGroupSize = group.length;
+            });
+
+            for (let i = 0; i < maxGroupSize; i++) {
+                Object.values(dojoGroups).forEach(group => {
+                    if (i < group.length && !used.has(group[i])) {
+                        prioritized.push(group[i]);
+                        used.add(group[i]);
+                    }
+                });
+            }
+
+            // 添加任何剩余的（理论上不应该有）
+            athletesArray.forEach(a => {
+                if (!used.has(a)) {
+                    prioritized.push(a);
+                }
+            });
+
+            return prioritized;
+        }
+
+        // 3. 核心：生成单淘汰制对阵表
+        function generateBracket(competitors, categoryName) {
+            if (competitors.length === 0) return { rounds: [], categoryName };
+
+            const prioritizedCompetitors = prioritizeMatching([...competitors]);
+            const numCompetitors = prioritizedCompetitors.length;
+            const numRounds = Math.ceil(Math.log2(numCompetitors));
+            const bracketSize = Math.pow(2, numRounds);
+
+            const seededCompetitors = [];
+            for (let i = 0; i < bracketSize; i++) {
+                if (i < numCompetitors) {
+                    seededCompetitors.push(prioritizedCompetitors[i]);
+                } else {
+                    seededCompetitors.push(null); // Bye
+                }
+            }
+
+            let matchIdCounter = 1;
+            const rounds = [];
+            let currentRoundCompetitors = [...seededCompetitors];
+
+            for (let round = 0; round < numRounds; round++) {
+                const currentRoundMatches = [];
+                const nextRoundCompetitors = [];
+
+                for (let i = 0; i < currentRoundCompetitors.length; i += 2) {
+                    const comp1 = currentRoundCompetitors[i];
+                    const comp2 = currentRoundCompetitors[i + 1];
+
+                    if (comp1 === null && comp2 === null) {
+                        nextRoundCompetitors.push(null);
+                    } else if (comp2 === null) {
+                        // Comp1 gets a bye
+                        nextRoundCompetitors.push(comp1);
+                    } else if (comp1 === null) {
+                        // Comp2 gets a bye
+                        nextRoundCompetitors.push(comp2);
+                    } else {
+                        const match = {
+                            id: `M${matchIdCounter++}`,
+                            competitor1: comp1,
+                            competitor2: comp2,
+                            winner: null,
+                            loser: null
+                        };
+                        currentRoundMatches.push(match);
+                        nextRoundCompetitors.push({ isPlaceholder: true, sourceMatchId: match.id });
+                    }
+                }
+
+                rounds.push({ roundNumber: round + 1, matches: currentRoundMatches });
+                currentRoundCompetitors = nextRoundCompetitors;
+            }
+
+            // 确定决赛和季军赛
+            const finalMatch = rounds.length > 0 && rounds[rounds.length - 1].matches.length > 0 ? rounds[rounds.length - 1].matches[0] : null;
+            let bronzeMatch = null;
+            if (rounds.length >= 2) {
+                const semiFinalRound = rounds[rounds.length - 2];
+                if (semiFinalRound.matches.length >= 2) {
+                    bronzeMatch = {
+                        id: `M${matchIdCounter++}`,
+                        competitor1: { isPlaceholder: true, sourceMatchId: semiFinalRound.matches[0].id, isLoser: true },
+                        competitor2: { isPlaceholder: true, sourceMatchId: semiFinalRound.matches[1].id, isLoser: true },
+                        winner: null,
+                        loser: null
+                    };
+                }
+            }
+
+            return {
+                rounds: rounds,
+                finalMatch: finalMatch,
+                bronzeMatch: bronzeMatch,
+                categoryName: categoryName
+            };
+        }
+
+        // 4. 渲染所有对阵表
+        function renderTournamentBrackets(containerId, categories) {
+            const container = document.getElementById(containerId);
+            container.innerHTML = ''; // Clear previous content
+
+            if (Object.keys(categories).length === 0) {
+                container.innerHTML = '<div class="no-data">没有找到相关分组数据</div>';
+                return;
+            }
+
+            Object.keys(categories).sort().forEach(categoryName => {
+                const competitors = categories[categoryName];
+                if (competitors.length > 0) {
+                    const bracketData = generateBracket(competitors, categoryName);
+                    // --- 新增：初始化该分组的状态 ---
+                    if (!bracketState[categoryName]) {
+                        bracketState[categoryName] = {};
+                        // 预先为所有比赛创建空状态条目
+                        bracketData.rounds.forEach(round => {
+                            round.matches.forEach(match => {
+                                bracketState[categoryName][match.id] = { winner: null, loser: null };
+                            });
+                        });
+                        if (bracketData.bronzeMatch) {
+                            bracketState[categoryName][bracketData.bronzeMatch.id] = { winner: null, loser: null };
+                        }
+                    }
+                    // --- 结束新增 ---
+                    const bracketElement = renderBracketForCategory(bracketData);
+                    container.appendChild(bracketElement);
+                }
+            });
+        }
+
+        // 5. 为单个分组渲染对阵表
+        function renderBracketForCategory(bracketData) {
+            const container = document.createElement('div');
+            container.className = 'bracket-container';
+            container.setAttribute('data-category', bracketData.categoryName); // 用于标识分组
+
+            const title = document.createElement('h2');
+            title.className = 'bracket-title';
+            title.textContent = bracketData.categoryName;
+
+            // 添加重置按钮
+            const controlsDiv = document.createElement('div');
+            controlsDiv.className = 'bracket-controls';
+            const resetButton = document.createElement('button');
+            resetButton.textContent = '重置对阵结果';
+            resetButton.onclick = () => resetBracketResults(bracketData.categoryName);
+            controlsDiv.appendChild(resetButton);
+            title.appendChild(controlsDiv);
+
+            container.appendChild(title);
+
+            if (!bracketData.rounds || bracketData.rounds.length === 0) {
+                container.appendChild(document.createElement('p').textContent = "该分组无选手。");
+                return container;
+            }
+
+            // 创建一个扁平化的比赛映射，方便查找
+            const matchMap = {};
+            bracketData.rounds.forEach(round => {
+                round.matches.forEach(match => {
+                    matchMap[match.id] = match;
+                });
+            });
+            if (bracketData.bronzeMatch) {
+                matchMap[bracketData.bronzeMatch.id] = bracketData.bronzeMatch;
+            }
+
+            // --- 修改：简化结果获取逻辑 ---
+            // 用于解析占位符并获取实际选手或状态 (主要依赖 bracketState)
+            function getResult(match, isWinner) {
+                 if (!match) return { name: 'TBD', isBye: false, isPlaceholder: true };
+
+                 // 优先从状态中获取结果
+                 const state = bracketState[bracketData.categoryName]?.[match.id];
+                 if (state) {
+                     if (isWinner && state.winner) {
+                         return { name: `${state.winner.name} (${state.winner.dojo})`, isBye: false, isPlaceholder: false, competitor: state.winner };
+                     }
+                     if (!isWinner && state.loser) {
+                         return { name: `${state.loser.name} (${state.loser.dojo})`, isBye: false, isPlaceholder: false, competitor: state.loser };
+                     }
+                 }
+
+                 // 如果状态中没有，且是真实选手
+                 if (!match.isPlaceholder && match.competitor1 !== undefined) {
+                     const competitor = isWinner ? match.competitor1 : match.competitor2;
+                     if (competitor === null) {
+                         return { name: '(轮空)', isBye: true, isPlaceholder: false };
+                     }
+                     if (competitor && !competitor.isPlaceholder) {
+                         return { name: `${competitor.name} (${competitor.dojo})`, isBye: false, isPlaceholder: false, competitor: competitor };
+                     }
+                 }
+
+                 // 处理占位符 (来自上一场比赛的胜者/败者) - 仅在状态未设置时
+                 if (match.isPlaceholder || (match.competitor1 && match.competitor1.isPlaceholder)) {
+                     const sourceMatchId = match.sourceMatchId || match.competitor1?.sourceMatchId || match.competitor2?.sourceMatchId;
+                     const isLoser = match.isLoser || match.competitor1?.isLoser || match.competitor2?.isLoser;
+                     const sourceMatch = matchMap[sourceMatchId];
+                     if (sourceMatch) {
+                         // 递归获取源比赛结果
+                         return getResult(sourceMatch, !isLoser); // 如果当前是败者组，则需要源比赛的败者
+                     }
+                 }
+
+                 return { name: 'TBD', isBye: false, isPlaceholder: true };
+            }
+            // --- 结束修改 ---
+
+
+            bracketData.rounds.forEach(round => {
+                const roundDiv = document.createElement('div');
+                roundDiv.className = 'round';
+
+                const roundTitle = document.createElement('div');
+                roundTitle.className = 'round-title';
+                roundTitle.textContent = `第 ${round.roundNumber} 轮`;
+                roundDiv.appendChild(roundTitle);
+
+                if (round.matches.length === 0) {
+                    const noMatch = document.createElement('div');
+                    noMatch.textContent = "无比赛";
+                    roundDiv.appendChild(noMatch);
+                } else {
+                    round.matches.forEach(match => {
+                        const matchEl = createMatchElement(match, getResult, bracketData.categoryName);
+                        roundDiv.appendChild(matchEl);
+                    });
+                }
+                container.appendChild(roundDiv);
+            });
+
+            // 渲染季军赛
+            if (bracketData.bronzeMatch) {
+                const bronzeRoundDiv = document.createElement('div');
+                bronzeRoundDiv.className = 'round';
+
+                const bronzeTitle = document.createElement('div');
+                bronzeTitle.className = 'round-title';
+                bronzeTitle.textContent = '季军赛';
+                bronzeRoundDiv.appendChild(bronzeTitle);
+
+                const bronzeMatchEl = createMatchElement(bracketData.bronzeMatch, getResult, bracketData.categoryName);
+                bronzeRoundDiv.appendChild(bronzeMatchEl);
+
+                container.appendChild(bronzeRoundDiv);
+            }
+
+             // 渲染决赛结果
+            if (bracketData.finalMatch) {
+                const finalsDiv = document.createElement('div');
+                finalsDiv.className = 'round'; // 可以复用round样式
+
+                const finalsTitle = document.createElement('div');
+                finalsTitle.className = 'round-title';
+                finalsTitle.textContent = '决赛结果';
+                finalsDiv.appendChild(finalsTitle);
+
+                const finalsMatchEl = document.createElement('div');
+                finalsMatchEl.className = 'match';
+
+                const winnerC = getResult(bracketData.finalMatch, true);
+                const loserC = getResult(bracketData.finalMatch, false); // 亚军
+
+                const winnerDiv = document.createElement('div');
+                winnerDiv.className = 'competitor winner';
+                winnerDiv.textContent = `冠军: ${winnerC.name}`;
+
+                const loserDiv = document.createElement('div');
+                loserDiv.className = 'competitor';
+                loserDiv.textContent = `亚军: ${loserC.name}`;
+
+                finalsMatchEl.appendChild(winnerDiv);
+                finalsMatchEl.appendChild(loserDiv);
+                finalsDiv.appendChild(finalsMatchEl);
+                container.appendChild(finalsDiv);
+            }
+
+
+            return container;
+        }
+
+        // 6. 创建单场比赛的HTML元素 (已修改以支持交互)
+        function createMatchElement(match, getResultFn, categoryName) {
+            const matchEl = document.createElement('div');
+            matchEl.className = 'match';
+            matchEl.setAttribute('data-match-id', match.id);
+
+            const comp1Info = getResultFn(match, true);
+            const comp2Info = getResultFn(match, false);
+
+            const comp1Div = document.createElement('div');
+            comp1Div.className = `competitor ${comp1Info.isBye ? 'bye' : ''} ${match.winner && match.winner.name === (comp1Info.name.split(' (')[0]) ? 'winner' : ''}`;
+            comp1Div.textContent = comp1Info.name;
+            if (!comp1Info.isBye && !comp1Info.isPlaceholder && comp1Info.competitor) {
+                 comp1Div.classList.add('selectable');
+                 comp1Div.onclick = () => selectWinner(categoryName, match.id, comp1Info.competitor, match); // 传递原始match对象
+            }
+
+            const comp2Div = document.createElement('div');
+            comp2Div.className = `competitor ${comp2Info.isBye ? 'bye' : ''} ${match.winner && match.winner.name === (comp2Info.name.split(' (')[0]) ? 'winner' : ''}`;
+            comp2Div.textContent = comp2Info.name;
+            if (!comp2Info.isBye && !comp2Info.isPlaceholder && comp2Info.competitor) {
+                 comp2Div.classList.add('selectable');
+                 comp2Div.onclick = () => selectWinner(categoryName, match.id, comp2Info.competitor, match);
+            }
+
+            // --- 新增：根据bracketState更新显示 ---
+            const state = bracketState[categoryName]?.[match.id];
+            if (state && state.winner) {
+                if (state.winner.name === comp1Info.competitor?.name) {
+                    comp1Div.classList.add('winner');
+                    comp2Div.classList.add('loser');
+                } else if (state.winner.name === comp2Info.competitor?.name) {
+                    comp2Div.classList.add('winner');
+                    comp1Div.classList.add('loser');
+                }
+            }
+            // --- 结束新增 ---
+
+            matchEl.appendChild(comp1Div);
+            matchEl.appendChild(comp2Div);
+
+            return matchEl;
+        }
+
+        // --- 新增：选择胜者并更新状态 ---
+        function selectWinner(categoryName, matchId, winnerCompetitor, originalMatchObject) {
+            if (!bracketState[categoryName]) {
+                bracketState[categoryName] = {};
+            }
+            if (!bracketState[categoryName][matchId]) {
+                bracketState[categoryName][matchId] = { winner: null, loser: null };
+            }
+
+            // 确定败者
+            let loserCompetitor = null;
+            if (originalMatchObject.competitor1 && originalMatchObject.competitor1.name === winnerCompetitor.name) {
+                loserCompetitor = originalMatchObject.competitor2;
+            } else if (originalMatchObject.competitor2 && originalMatchObject.competitor2.name === winnerCompetitor.name) {
+                loserCompetitor = originalMatchObject.competitor1;
+            }
+
+            // 更新状态
+            bracketState[categoryName][matchId].winner = winnerCompetitor;
+            bracketState[categoryName][matchId].loser = loserCompetitor;
+
+            // 更新整个对阵表
+            updateBracket(categoryName);
+        }
+
+        // --- 新增：更新对阵表显示 ---
+        function updateBracket(categoryName) {
+             // 重新渲染该分组的整个对阵表
+             const kumiteBracketsContent = document.getElementById('kumite-brackets-content');
+             const kataBracketsContent = document.getElementById('kata-brackets-content');
+
+             // 确定是哪个容器需要更新
+             let targetContainer = null;
+             if (kumiteBracketsContent.querySelector(`.bracket-container[data-category="${categoryName}"]`)) {
+                 targetContainer = kumiteBracketsContent;
+             } else if (kataBracketsContent.querySelector(`.bracket-container[data-category="${categoryName}"]`)) {
+                 targetContainer = kataBracketsContent;
+             }
+
+             if (targetContainer) {
+                 // 重新生成并渲染该分组的对阵表
+                 const { kumiteCategories, kataCategories } = categorizeForTournaments(athletesData);
+                 const categories = targetContainer.id === 'kumite-brackets-content' ? kumiteCategories : kataCategories;
+
+                 // 重新渲染整个容器，但只更新目标分组
+                 renderTournamentBrackets(targetContainer.id, categories);
+             }
+        }
+
+        // --- 新增：重置对阵结果 ---
+        function resetBracketResults(categoryName) {
+            if (bracketState[categoryName]) {
+                // 清空该分组的所有状态
+                bracketState[categoryName] = {};
+            }
+            // 更新显示
+            updateBracket(categoryName);
+        }
+
+
+        // 应用筛选 (原始功能)
+        function applyFilters() {
+            const dojoFilter = document.getElementById('dojoFilter').value;
+            const searchInput = document.getElementById('searchInput').value.toLowerCase();
+            let filteredData = [...athletesData]; // 使用副本
+
+            if (dojoFilter) {
+                filteredData = filteredData.filter(athlete => athlete.dojo === dojoFilter);
+            }
+            if (searchInput) {
+                filteredData = filteredData.filter(athlete =>
+                    athlete.name.toLowerCase().includes(searchInput)
+                );
+            }
+
+            const { kumite, kata } = categorizeData(filteredData);
+
+            if (document.getElementById('kumite').classList.contains('active')) {
+                renderKumiteTable(kumite);
+            }
+            if (document.getElementById('kata').classList.contains('active')) {
+                renderKataTable(kata);
+            }
+        }
+
+        // 重置筛选 (原始功能)
+        function resetFilters() {
+            document.getElementById('dojoFilter').value = '';
+            document.getElementById('searchInput').value = '';
+            applyFilters();
+        }
+
+        // 标签页切换 (已修改以支持新标签)
+        function showTab(tabName) {
+            document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+
+            document.querySelector(`.tab[onclick="showTab('${tabName}')"]`).classList.add('active');
+            const contentElement = document.getElementById(tabName);
+            contentElement.classList.add('active');
+
+            // 根据标签页内容进行相应操作
+            if (tabName === 'kumite') {
+                const { kumite } = categorizeData(athletesData);
+                renderKumiteTable(kumite);
+            } else if (tabName === 'kata') {
+                const { kata } = categorizeData(athletesData);
+                renderKataTable(kata);
+            } else if (tabName === 'kumite-brackets') {
+                const { kumiteCategories } = categorizeForTournaments(athletesData);
+                renderTournamentBrackets('kumite-brackets-content', kumiteCategories);
+            } else if (tabName === 'kata-brackets') {
+                const { kataCategories } = categorizeForTournaments(athletesData);
+                renderTournamentBrackets('kata-brackets-content', kataCategories);
+            }
+        }
+
+        // 初始化页面
+        document.addEventListener('DOMContentLoaded', function() {
+            initDojoFilter();
+            const { kumite, kata } = categorizeData(athletesData);
+            renderKumiteTable(kumite);
+            renderKataTable(kata);
+        });
+    </script>
+</body>
+</html>

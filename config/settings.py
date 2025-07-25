@@ -1,11 +1,16 @@
 from pydantic_settings import BaseSettings
+import os
 
-class Settings(BaseSettings):  # pyright: ignore[reportGeneralTypeIssues]
-    # 主数据库路径
-    DATABASE_PATH: str = "../data/ath.db"
-    # 比赛过程信息数据库路径
-    MATCH_DATABASE_PATH: str = "../data/matches.db"
+class Settings(BaseSettings):
+    # Use absolute paths for database files
+    BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "data"))
+    DATABASE_PATH: str = os.path.join(BASE_DIR, "ath.db")
+    MATCH_DATABASE_PATH: str = os.path.join(BASE_DIR, "matches.db")
 
     class Config:
-        # 指定环境变量文件名，可自动读取 .env 文件中的配置
-        env_file = ".venv"
+        env_file = ".env"
+        env_file_encoding = 'utf-8'
+
+    def __post_init__(self):
+        # Ensure data directory exists
+        os.makedirs(self.BASE_DIR, exist_ok=True)

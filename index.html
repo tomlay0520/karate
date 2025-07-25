@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>2025年第十四回全接触空手道大会（天津）</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- 页面头部，显示大会标题和副标题 -->
+    <header>
+        <h1>2025年第十四回全接触空手道大会（天津）</h1>
+        <p class="subtitle">运动员名单自动分类系统</p>
+    </header>
+
+    <!-- 筛选控件，包含道场筛选和姓名搜索 -->
+    <div class="controls">
+        <div class="filter-section">
+            <div class="filter-group">
+                <label for="dojoFilter">道场筛选:</label>
+                <select id="dojoFilter">
+                    <option value="">所有道场</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label for="searchInput">姓名搜索:</label>
+                <input type="text" id="searchInput" placeholder="输入运动员姓名">
+            </div>
+            <button onclick="applyFilters()">应用筛选</button>
+            <button onclick="resetFilters()">重置</button>
+        </div>
+    </div>
+
+    <!-- 标签页导航 -->
+    <div class="tabs">
+        <div class="tab active" onclick="showTab('kumite')">组手 (Kumite)</div>
+        <div class="tab" onclick="showTab('kata')">型 (Kata)</div>
+        <div class="tab" onclick="showTab('kumite-brackets')">组手对阵表</div>
+        <div class="tab" onclick="showTab('kata-brackets')">型对阵表</div>
+    </div>
+
+    <!-- 组手数据展示 -->
+    <div id="kumite" class="tab-content active">
+        <div id="kumiteContent">
+            <div class="no-data">正在加载组手数据...</div>
+        </div>
+    </div>
+
+    <!-- 型数据展示 -->
+    <div id="kata" class="tab-content">
+        <div id="kataContent">
+            <div class="no-data">切换到型标签页查看数据</div>
+        </div>
+    </div>
+
+    <!-- 组手对阵表展示 -->
+    <div id="kumite-brackets" class="tab-content">
+        <div id="kumite-brackets-content">
+            <div class="no-data">切换到组手对阵表标签页查看对阵</div>
+        </div>
+    </div>
+
+    <!-- 型对阵表展示 -->
+    <div id="kata-brackets" class="tab-content">
+        <div id="kata-brackets-content">
+            <div class="no-data">切换到型对阵表标签页查看对阵</div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

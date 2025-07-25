@@ -1,0 +1,119 @@
+% Setting up the document class and necessary packages
+\documentclass[a4paper,12pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{geometry}
+\geometry{left=1cm,right=1cm,top=1cm,bottom=1cm}
+\usepackage{tikz}
+\usetikzlibrary{trees,positioning}
+\usepackage{xeCJK}
+\setCJKmainfont{Noto Serif CJK SC} % Setting font for Chinese text
+\usepackage{tocloft}
+\setlength{\cftsecleader}{\cftdotfill{\cftdotsep}}
+
+% Defining styles for the bracket nodes
+\tikzset{
+  match/.style={rectangle, draw, rounded corners, minimum height=1.5em, minimum width=8em, align=center},
+  connector/.style={-stealth, thick},
+  empty/.style={rectangle, minimum height=1.5em, minimum width=8em, align=center}
+}
+
+% Setting page style and title
+\begin{document}
+\pagestyle{plain}
+\begin{center}
+  \textbf{\Large 组手对阵表 - 初赛对阵树状图}
+\end{center}
+\tableofcontents
+\clearpage
+
+% Creating a section for each category's bracket
+\section{U11男子中级组-45KG}
+\begin{center}
+\begin{tikzpicture}[node distance=1cm and 2cm, level distance=2cm]
+  % Defining the first match
+  \node[match] (a1) {真武道场 刘宸赫};
+  \node[match, below=0.5cm of a1] (a2) {真武道场 牛承尚};
+  \node[empty, right=3cm of a1] (b1) {};
+  \draw[connector] (a1.east) -- ++(1cm,0) |- (b1.west);
+  \draw[connector] (a2.east) -- ++(1cm,0) |- (b1.west);
+\end{tikzpicture}
+\end{center}
+
+\section{U11女子中级组+30KG}
+\begin{center}
+\begin{tikzpicture}[node distance=1cm and 2cm, level distance=2cm]
+  \node[match] (a1) {真武道场 杨彩希};
+  \node[match, below=0.5cm of a1] (a2) {IBKO天津支部 金佳永};
+  \node[empty, right=3cm of a1] (b1) {};
+  \draw[connector] (a1.east) -- ++(1cm,0) |- (b1.west);
+  \draw[connector] (a2.east) -- ++(1cm,0) |- (b1.west);
+\end{tikzpicture}
+\end{center}
+
+\section{U11女子高级组+45KG}
+\begin{center}
+\begin{tikzpicture}[node distance=1cm and 2cm, level distance=2cm]
+  \node[match] (a1) {横罡垫天辰道馆 赵逸欣};
+  \node[match, below=0.5cm of a1] (a2) {轮空};
+  \node[match, below=1cm of a2] (a3) {IBKO本部道场 顾于乔};
+  \node[match, below=0.5cm of a3] (a4) {新极真会小一道场 陈裕柔};
+  \node[match, below=1cm of a4] (a5) {IBKO本部道场 王梓萱};
+  \node[match, below=0.5cm of a5] (a6) {world极真大连 张瑞嘉};
+  \node[empty, right=3cm of a1] (b1) {};
+  \node[empty, right=3cm of a3] (b2) {};
+  \node[empty, right=3cm of a5] (b3) {};
+  \node[empty, right=6cm of b2] (c1) {};
+  \draw[connector] (a1.east) -- ++(1cm,0) |- (b1.west);
+  \draw[connector] (a2.east) -- ++(1cm,0) |- (b1.west);
+  \draw[connector] (a3.east) -- ++(1cm,0) |- (b2.west);
+  \draw[connector] (a4.east) -- ++(1cm,0) |- (b2.west);
+  \draw[connector] (a5.east) -- ++(1cm,0) |- (b3.west);
+  \draw[connector] (a6.east) -- ++(1cm,0) |- (b3.west);
+  \draw[connector] (b1.east) -- ++(1cm,0) |- (c1.west);
+  \draw[connector] (b2.east) -- ++(1cm,0) |- (c1.west);
+  \draw[connector] (b3.east) -- ++(1cm,0) |- (c1.west);
+\end{tikzpicture}
+\end{center}
+
+\section{U11男子中级组+50KG}
+\begin{center}
+\begin{tikzpicture}[node distance=1cm and 2cm, level distance=2cm]
+  \node[match] (a1) {真武道场 靳宏博};
+  \node[match, below=0.5cm of a1] (a2) {IBKO郑州修心道场 王迦冉};
+  \node[match, below=1cm of a2] (a3) {IBKO郑州翊道场 付家丞};
+  \node[match, below=0.5cm of a3] (a4) {真武道场 李明轩};
+  \node[match, below=1cm of a4] (a5) {轮空};
+  \node[match, below=0.5cm of a5] (a6) {真武道场 高畅};
+  \node[empty, right=3cm of a1] (b1) {};
+  \node[empty, right=3cm of a3] (b2) {};
+  \node[empty, right=3cm of a5] (b3) {};
+  \node[empty, right=6cm of b2] (c1) {};
+  \draw[connector] (a1.east) -- ++(1cm,0) |- (b1.west);
+  \draw[connector] (a2.east) -- ++(1cm,0) |- (b1.west);
+  \draw[connector] (a3.east) -- ++(1cm,0) |- (b2.west);
+  \draw[connector] (a4.east) -- ++(1cm,0) |- (b2.west);
+  \draw[connector] (a5.east) -- ++(1cm,0) |- (b3.west);
+  \draw[connector] (a6.east) -- ++(1cm,0) |- (b3.west);
+  \draw[connector] (b1.east) -- ++(1cm,0) |- (c1.west);
+  \draw[connector] (b2.east) -- ++(1cm,0) |- (c1.west);
+  \draw[connector] (b3.east) -- ++(1cm,0) |- (c1.west);
+\end{tikzpicture}
+\end{center}
+
+% Adding a comment for extensibility
+% Additional categories can be added here following the same TikZ structure.
+% For example, to add U11女子中级组+35KG:
+% \section{U11女子中级组+35KG}
+% \begin{center}
+% \begin{tikzpicture}[node distance=1cm and 2cm, level distance=2cm]
+%   \node[match] (a1) {真武道场 赵连鑫};
+%   \node[match, below=0.5cm of a1] (a2) {真武道场 华作思琪};
+%   \node[empty, right=3cm of a1] (b1) {};
+%   \draw[connector] (a1.east) -- ++(1cm,0) |- (b1.west);
+%   \draw[connector] (a2.east) -- ++(1cm,0) |- (b1.west);
+% \end{tikzpicture}
+% \end{center}
+% Repeat for other categories as needed.
+
+\end{document}
